@@ -196,7 +196,7 @@ export function ProjectEditor({
             ) : (
               <button type="button" onClick={() => pickFile("cover", "cover")} className="w-full h-full border-2 border-dashed border-[#C8C7C2] rounded-[14px] bg-[#FAFAF8] flex flex-col items-center justify-center gap-2 cursor-pointer text-body">
                 <span className="text-base font-semibold">{uploading === "cover" ? "Uploading…" : "Add a cover image"}</span>
-                <span className="text-[13px] text-muted">Shown in Discover. JPG, PNG or WebP, ideally 1600 px wide</span>
+                <span className="text-[13px] text-muted">Shown on Explore and the homepage. JPG, PNG or WebP, ideally 1600 px wide</span>
               </button>
             )}
           </div>
@@ -312,16 +312,16 @@ export function ProjectEditor({
           <section className="card p-5 flex flex-col gap-3.5">
             <label className="flex justify-between items-center gap-3 cursor-pointer">
               <span>
-                <span className="block text-base font-semibold">Open for feedback</span>
-                <span className="block text-[13px] text-muted mt-0.5">Members can respond with guided prompts</span>
+                <span className="block text-base font-semibold">Invite responses</span>
+                <span className="block text-[13px] text-muted mt-0.5">Let the community tell you what your work means to them</span>
               </span>
               <input type="checkbox" role="switch" checked={feedbackOpen} onChange={(e) => setFeedbackOpen(e.target.checked)} className="w-[22px] h-[22px] accent-accent m-0 shrink-0" />
             </label>
             {feedbackOpen && (
               <div>
-                <label htmlFor="ask" className="label">What do you want to know?</label>
-                <textarea id="ask" rows={3} maxLength={300} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="e.g. Does the ending land?" className="input text-sm" />
-                <p className="hint mt-1.5 mb-0">A specific question gets more useful answers.</p>
+                <label htmlFor="ask" className="label">Ask the community something (optional)</label>
+                <textarea id="ask" rows={3} maxLength={300} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="e.g. Which piece in the series speaks to you most?" className="input text-sm" />
+                <p className="hint mt-1.5 mb-0">A warm, specific question gets the best responses.</p>
               </div>
             )}
           </section>

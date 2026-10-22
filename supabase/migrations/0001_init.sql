@@ -22,7 +22,7 @@ create table public.profiles (
   instagram text check (char_length(instagram) <= 100),
   work_link text check (char_length(work_link) <= 300),
   avatar_path text,
-  banner_color text not null default '#2B2A6B' check (banner_color ~ '^#[0-9A-Fa-f]{6}$'),
+  banner_color text not null default '#007041' check (banner_color ~ '^#[0-9A-Fa-f]{6}$'),
   disciplines text[] not null default '{}',
   available_for text[] not null default '{}',
   created_at timestamptz not null default now()

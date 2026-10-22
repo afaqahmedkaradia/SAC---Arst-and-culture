@@ -2,7 +2,8 @@
 
 A community platform where artists of every discipline share projects, get feedback and get discovered.
 
-- **App:** Next.js 16, deployed on Webflow Cloud at your site's `/app` path
+- **App:** Next.js 16, deployed on Webflow Cloud
+- **Design:** the "Signature" direction — Ismaili green, gold and crimson, Montserrat and Mulish, the eight-point star motif
 - **Accounts, database and files:** Supabase
 - **Public pages (home, about, guidelines):** built in the Webflow Designer
 
@@ -11,9 +12,10 @@ A community platform where artists of every discipline share projects, get feedb
 | Area | What people can do |
 | --- | --- |
 | Accounts | Join as an **Artist** (approved by curators) or a **Member**; log in; reset password |
-| Discover | Browse projects by discipline, search, and switch between Featured, Following and New |
-| Projects | Artists build projects from image, audio, video (YouTube/Vimeo), text and PDF blocks, credit collaborators, and open them for feedback with a question |
-| Feedback | Members answer three guided prompts; artists mark feedback as helpful |
+| Homepage | A bold landing page: featured work, disciplines, artists in the spotlight |
+| Explore | Browse work by discipline, search, and switch between Featured, Following and New |
+| Projects | Artists build projects from image, audio, video (YouTube/Vimeo), text and PDF blocks, credit collaborators, and invite responses |
+| Responses | Members share what moved them; artists highlight the responses they love |
 | Social | Appreciate projects, follow artists, save projects into collections |
 | Get in touch | Members send inquiries (buying, booking, commissions, collaborations); artists reply by email |
 | Dashboards | Artists see feedback, inquiries, stats and their projects; members see their feed, collections and feedback given |
@@ -91,10 +93,12 @@ Point buttons on your Webflow pages to the app:
 
 | Button | Link |
 | --- | --- |
-| Explore work | `/app` |
-| Meet the artists | `/app/artists` |
-| Join SAC | `/app/join` |
-| Log in | `/app/login` |
+| Explore work | `/explore` |
+| Meet the artists | `/artists` |
+| Join SAC | `/join` |
+| Log in | `/login` |
+
+(Add your mount path in front if the app runs under one, e.g. `/app/explore`.)
 
 ## Running it on your computer (optional)
 

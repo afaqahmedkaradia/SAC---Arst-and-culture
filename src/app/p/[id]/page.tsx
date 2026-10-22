@@ -202,7 +202,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2 items-center">
-          <Link href={{ pathname: "/", query: { d: project.discipline } }} className="chip bg-soft text-ink no-underline">
+          <Link href={{ pathname: "/explore", query: { d: project.discipline } }} className="chip bg-soft text-ink no-underline">
             {project.discipline}
           </Link>
           {project.featured && <span className="chip bg-saffron text-ink">Featured by SAC</span>}
@@ -273,10 +273,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           )}
 
           <section id="feedback" aria-labelledby="fb-title" className="border-t border-line pt-8 flex flex-col gap-5">
-            <h2 id="fb-title" className="h-display m-0 text-[26px] font-semibold">Feedback · {feedback.length}</h2>
+            <h2 id="fb-title" className="h-display m-0 text-[26px] font-semibold">Responses · {feedback.length}</h2>
             {project.feedback_open && project.feedback_question && (
               <div className="bg-accent-tint rounded-[14px] px-5 py-4 flex flex-col gap-1.5">
-                <span className="text-[13px] font-semibold tracking-[0.06em] uppercase text-accent">The artist is asking</span>
+                <span className="text-[13px] font-semibold tracking-[0.06em] uppercase text-accent">The artist would love to hear</span>
                 <p className="m-0 text-lg font-medium leading-snug">{project.feedback_question}</p>
               </div>
             )}
@@ -286,12 +286,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             ) : (
               <p className="m-0 card p-5 text-body">
                 <Link href={`/login?next=${encodeURIComponent(path + "#feedback")}`}>Log in</Link> or{" "}
-                <Link href="/join">join SAC</Link> to give feedback.
+                <Link href="/join">join SAC</Link> to share a response.
               </p>
             ))}
-            {!project.feedback_open && feedback.length === 0 && (
-              <p className="m-0 text-muted">The artist hasn&apos;t opened this project for feedback.</p>
-            )}
 
             {feedback.map((f) => (
               <article key={f.id} className="card p-5 flex flex-col gap-3.5">
@@ -315,11 +312,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                         <input type="hidden" name="value" value={f.helpful ? "0" : "1"} />
                         <input type="hidden" name="path" value={path} />
                         <button className={`btn btn-sm ${f.helpful ? "bg-good-tint text-good" : "btn-outline"}`} aria-pressed={f.helpful}>
-                          {f.helpful ? "Marked helpful" : "Mark as helpful"}
+                          {f.helpful ? "Highlighted" : "Highlight"}
                         </button>
                       </form>
                     ) : (
-                      f.helpful && <span className="chip bg-good-tint text-good">Marked helpful by the artist</span>
+                      f.helpful && <span className="chip bg-good-tint text-good">Highlighted by the artist</span>
                     )}
                     {(viewer?.id === f.author?.id || viewer?.profile?.is_admin) && (
                       <form action={deleteFeedback}>
@@ -332,10 +329,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 </div>
                 <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
                   {f.working && (
-                    <div><div className="text-[13px] font-semibold text-muted mb-1">What&apos;s working</div><p className="m-0 text-[15px] leading-normal whitespace-pre-line">{f.working}</p></div>
+                    <div><div className="text-[13px] font-semibold text-muted mb-1">What moved me</div><p className="m-0 text-[15px] leading-normal whitespace-pre-line">{f.working}</p></div>
                   )}
                   {f.explore && (
-                    <div><div className="text-[13px] font-semibold text-muted mb-1">What I&apos;d explore</div><p className="m-0 text-[15px] leading-normal whitespace-pre-line">{f.explore}</p></div>
+                    <div><div className="text-[13px] font-semibold text-muted mb-1">What I&apos;d love to see next</div><p className="m-0 text-[15px] leading-normal whitespace-pre-line">{f.explore}</p></div>
                   )}
                   {f.question && (
                     <div><div className="text-[13px] font-semibold text-muted mb-1">Question</div><p className="m-0 text-[15px] leading-normal whitespace-pre-line">{f.question}</p></div>
@@ -343,7 +340,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 </div>
                 {viewer && !isOwner && viewer.id !== f.author?.id && (
                   <details className="text-sm">
-                    <summary className="cursor-pointer text-muted">Report this feedback</summary>
+                    <summary className="cursor-pointer text-muted">Report this response</summary>
                     <ReportForm feedbackId={f.id} path={path} />
                   </details>
                 )}
@@ -391,7 +388,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             {project.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {project.tags.map((t) => (
-                  <Link key={t} href={{ pathname: "/", query: { q: t } }} className="text-[13px] text-body bg-soft px-2.5 py-1.5 rounded-full no-underline">
+                  <Link key={t} href={{ pathname: "/explore", query: { q: t } }} className="text-[13px] text-body bg-soft px-2.5 py-1.5 rounded-full no-underline">
                     #{t}
                   </Link>
                 ))}

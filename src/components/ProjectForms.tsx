@@ -35,15 +35,15 @@ export function FeedbackForm({ projectId }: { projectId: string }) {
     if (state?.ok) ref.current?.reset();
   }, [state]);
   return (
-    <form ref={ref} action={action} aria-label="Give feedback" className="card p-5 flex flex-col gap-4">
+    <form ref={ref} action={action} aria-label="Share a response" className="card p-5 flex flex-col gap-4">
       <input type="hidden" name="project_id" value={projectId} />
       <div>
-        <label htmlFor="fb-work" className="label text-[15px]">What&apos;s working</label>
-        <textarea id="fb-work" name="working" rows={2} maxLength={2000} placeholder="The moments, choices or details that land for you" className="input" />
+        <label htmlFor="fb-work" className="label text-[15px]">What moved me</label>
+        <textarea id="fb-work" name="working" rows={2} maxLength={2000} placeholder="The moments, choices or details that stayed with you" className="input" />
       </div>
       <div>
-        <label htmlFor="fb-explore" className="label text-[15px]">What I&apos;d explore further</label>
-        <textarea id="fb-explore" name="explore" rows={2} maxLength={2000} placeholder="Where you think the work could go next" className="input" />
+        <label htmlFor="fb-explore" className="label text-[15px]">What I&apos;d love to see next</label>
+        <textarea id="fb-explore" name="explore" rows={2} maxLength={2000} placeholder="Where you hope this work goes next" className="input" />
       </div>
       <div>
         <label htmlFor="fb-q" className="label text-[15px]">
@@ -64,8 +64,8 @@ export function FeedbackForm({ projectId }: { projectId: string }) {
       </fieldset>
       <Note state={state} />
       <div className="flex flex-wrap gap-3 justify-between items-center">
-        <span className="text-sm text-muted">Be specific and kind. The artist can mark feedback as helpful.</span>
-        <SubmitButton pendingText="Posting…">Post feedback</SubmitButton>
+        <span className="text-sm text-muted">Be generous and specific. Artists can highlight the responses they love.</span>
+        <SubmitButton pendingText="Sharing…">Share your response</SubmitButton>
       </div>
     </form>
   );

@@ -21,10 +21,11 @@ export default async function ArtistsPage({ searchParams }: { searchParams: Prom
   const artists = (data ?? []) as Profile[];
 
   return (
-    <main className="page pt-12 pb-20 flex flex-col gap-6">
+    <main className="page max-w-[1400px] pt-14 pb-24 flex flex-col gap-7">
       <div className="flex flex-col gap-2">
-        <h1 className="h-display m-0 text-[clamp(34px,4vw,52px)]">Artists</h1>
-        <p className="m-0 text-lg text-muted">The painters, performers, makers and sound artists of our community.</p>
+        <span className="eyebrow">Artists</span>
+        <h1 className="m-0 font-display font-black text-[clamp(44px,6vw,88px)] leading-[0.92] tracking-[-0.05em]">Meet the <span className="text-accent">artists.</span></h1>
+        <p className="m-0 text-lg text-body max-w-[560px]">The painters, musicians, performers, calligraphers and filmmakers of our community.</p>
       </div>
       <div className="flex flex-wrap gap-2.5">
         {[null, ...DISCIPLINES].map((x) => (
@@ -32,7 +33,7 @@ export default async function ArtistsPage({ searchParams }: { searchParams: Prom
             key={x ?? "all"}
             href={x ? { pathname: "/artists", query: { d: x } } : "/artists"}
             aria-current={x === discipline ? "page" : undefined}
-            className={`btn btn-sm text-sm ${x === discipline ? "btn-dark" : "btn-outline font-medium"}`}
+            className={`btn btn-sm text-sm ${x === discipline ? "btn-primary" : "btn-outline font-semibold"}`}
           >
             {x ?? "All"}
           </Link>

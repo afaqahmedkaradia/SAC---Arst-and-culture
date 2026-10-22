@@ -1,4 +1,4 @@
-import { initials, mediaUrl } from "@/lib/constants";
+import { initials, mediaUrl, personColor } from "@/lib/constants";
 import type { PersonLite } from "@/lib/types";
 
 export function Avatar({ person, size = 36, ring = false }: { person: PersonLite; size?: number; ring?: boolean }) {
@@ -6,7 +6,7 @@ export function Avatar({ person, size = 36, ring = false }: { person: PersonLite
   const style = {
     width: size,
     height: size,
-    background: person.banner_color,
+    background: personColor(person.id, person.banner_color),
     fontSize: Math.max(11, Math.round(size * 0.36)),
     border: ring ? "5px solid #fff" : undefined,
   };

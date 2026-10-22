@@ -20,7 +20,7 @@ export function ProjectCard({ p, showOwner = true }: { p: Card; showOwner?: bool
         {p.feedback_open && (
           <span className="chip absolute bottom-3 left-3 bg-white text-ink text-xs">
             <ChatIcon size={14} />
-            Open for feedback
+            Responses open
           </span>
         )}
         {p.status === "draft" && (

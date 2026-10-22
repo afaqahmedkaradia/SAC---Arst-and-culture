@@ -50,7 +50,7 @@ export function JoinForm() {
               <input type="radio" name="role" value="artist" checked={role === "artist"} onChange={() => setRole("artist")} className="w-5 h-5 accent-accent m-0" />
             </span>
             <span className="text-sm leading-normal text-muted">
-              Share projects, ask for feedback and get discovered. Approved by community curators.
+              Share your work, get featured by our curators and be discovered across the community.
             </span>
           </label>
           <label className={card(role === "member")}>
@@ -59,7 +59,7 @@ export function JoinForm() {
               <input type="radio" name="role" value="member" checked={role === "member"} onChange={() => setRole("member")} className="w-5 h-5 accent-accent m-0" />
             </span>
             <span className="text-sm leading-normal text-muted">
-              Follow artists, give feedback and build collections of work you love.
+              Follow artists, celebrate their work and build collections of what you love.
             </span>
           </label>
         </div>

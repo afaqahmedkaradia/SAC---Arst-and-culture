@@ -1,29 +1,37 @@
 @import "tailwindcss";
 
-/* SAC design tokens — the same palette as the mockups. */
+/* SAC design tokens — the "Signature" direction: community green, gold and crimson. */
 @theme {
-  --color-ink: #15151a;
-  --color-body: #3b3b44;
-  --color-muted: #5c5c66;
-  --color-line: #e4e3e0;
-  --color-line-strong: #d6d5d1;
-  --color-soft: #f4f3f0;
-  --color-accent: #3d33e0;
-  --color-accent-dark: #2a22a8;
-  --color-accent-tint: #eeedfc;
-  --color-saffron: #f5b83d;
-  --color-clay: #e8603c;
-  --color-good: #155e52;
-  --color-good-tint: #e3f1ec;
-  --color-danger: #a12a2a;
-  --color-danger-tint: #fbeaea;
-  --font-sans: "Inter Variable", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Inter Variable", system-ui, sans-serif;
+  --color-ink: #141414;
+  --color-body: #3f3f44;
+  --color-muted: #5a5a60;
+  --color-line: #e5e5df;
+  --color-line-strong: #d4d4cd;
+  --color-soft: #f4f4f0;
+  --color-paper: #fafaf7;
+  --color-accent: #007041;
+  --color-accent-dark: #00532f;
+  --color-accent-tint: #ebf4f0;
+  --color-forest: #00532f;
+  --color-night: #0e2a1c;
+  --color-moss: #3a4b39;
+  --color-saffron: #f1c85d;
+  --color-gold: #f1c85d;
+  --color-clay: #98111d;
+  --color-crimson: #98111d;
+  --color-teal: #19a29c;
+  --color-mint: #6bcfa5;
+  --color-good: #00532f;
+  --color-good-tint: #ebf4f0;
+  --color-danger: #98111d;
+  --color-danger-tint: #f8e7e8;
+  --font-sans: "Mulish Variable", system-ui, sans-serif;
+  --font-display: "Montserrat Variable", "Mulish Variable", system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    background: #ffffff;
+    background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -55,8 +63,9 @@
     min-height: 44px;
     padding: 0 20px;
     border-radius: 999px;
+    font-family: var(--font-display);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
     cursor: pointer;
     border: 1.5px solid transparent;
@@ -137,8 +146,29 @@
   }
   .h-display {
     font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-crimson);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 32px;
+    height: 2px;
+    background: currentColor;
+  }
+  .stripe {
+    height: 8px;
+    background: repeating-linear-gradient(90deg, #007041 0 48px, #f1c85d 48px 60px, #98111d 60px 108px, #19a29c 108px 120px);
   }
   .prose-sac p {
     margin: 0 0 1em;
@@ -146,4 +176,26 @@
     line-height: 1.65;
     color: var(--color-body);
   }
+}
+
+@keyframes sac-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes sac-marquee {
+  to { transform: translateX(-50%); }
+}
+@keyframes sac-float {
+  50% { transform: translateY(-8px); }
+}
+@keyframes sac-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-sac-spin { animation: sac-spin 18s linear infinite; }
+.animate-sac-spin-slow { animation: sac-spin 90s linear infinite; }
+.animate-sac-marquee { animation: sac-marquee 42s linear infinite; }
+.animate-sac-float { animation: sac-float 5s ease-in-out infinite; }
+.animate-sac-rise { animation: sac-rise 0.8s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }

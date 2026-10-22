@@ -95,7 +95,7 @@ export async function postFeedback(_prev: ActionState, form: FormData): Promise<
   const explore = String(form.get("explore") ?? "").trim().slice(0, 2000);
   const question = String(form.get("question") ?? "").trim().slice(0, 1000);
   const visibility = form.get("visibility") === "artist" ? "artist" : "public";
-  if (!working && !explore) return { error: "Share what's working or what you'd explore. A sentence is enough." };
+  if (!working && !explore) return { error: "Share what moved you or what you'd love to see next. A sentence is enough." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("feedback").insert({
@@ -106,19 +106,19 @@ export async function postFeedback(_prev: ActionState, form: FormData): Promise<
     question: question || null,
     visibility,
   });
-  if (error) return { error: "Couldn't post your feedback. The project may have closed feedback." };
+  if (error) return { error: "Couldn't share your response. The artist may have closed responses." };
 
   const { data: project } = await supabase.from("projects").select("owner_id,title").eq("id", projectId).maybeSingle();
   if (project) {
     await notifyUser(
       project.owner_id,
-      `New feedback on “${project.title}”`,
-      [`${viewer.profile?.display_name ?? "A member"} left feedback on your project “${project.title}”.`],
+      `A new response to “${project.title}”`,
+      [`${viewer.profile?.display_name ?? "A member"} responded to your project “${project.title}”.`],
       `/p/${projectId}#feedback`,
     );
   }
   revalidatePath(`/p/${projectId}`);
-  return { ok: "Thanks! Your feedback is posted." };
+  return { ok: "Thank you! Your response is shared with the artist." };
 }
 
 export async function setHelpful(form: FormData) {

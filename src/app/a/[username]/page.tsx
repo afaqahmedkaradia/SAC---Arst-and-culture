@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/viewer";
 import { PROJECT_CARD_SELECT, type Profile, type ProjectCard } from "@/lib/types";
 import { Avatar } from "@/components/Avatar";
+import { StarOutline } from "@/components/Star";
+import { personColor } from "@/lib/constants";
 import { Cover } from "@/components/Cover";
 import { PinIcon } from "@/components/Icons";
 import { ProjectGrid } from "@/components/ProjectCard";
@@ -94,13 +96,13 @@ export default async function ProfilePage({
     { id: "about", label: "About", show: true },
   ];
 
-  const banner = profile.banner_color;
+  const banner = personColor(profile.id, profile.banner_color);
 
   return (
     <main className="flex-1">
       <div aria-hidden="true" className="relative h-[200px] sm:h-[240px] overflow-hidden" style={{ background: banner }}>
-        <span className="absolute w-[360px] h-[360px] rounded-full right-[12%] -top-[90px] opacity-90" style={{ background: "#F5B83D" }} />
-        <span className="absolute w-full h-[60px] left-0 bottom-0 opacity-80" style={{ background: "#E8603C" }} />
+        <StarOutline size={520} stroke="#F1C85D" inner="#FFFFFF" strokeWidth={0.7} className="absolute right-[6%] -top-[160px] opacity-70 animate-sac-spin-slow" />
+        <StarOutline size={300} stroke="#FFFFFF" strokeWidth={0.7} className="absolute right-[38%] top-[40px] opacity-25" />
       </div>
 
       <div className="page pb-20 flex flex-wrap gap-10 items-start">
@@ -151,8 +153,8 @@ export default async function ProfilePage({
           </dl>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[13px] font-semibold text-muted">Feedback given</span>
-            <p className="m-0 text-[15px]">{feedbackRes.count ?? 0} responses · {helpfulRes.count ?? 0} marked helpful</p>
+            <span className="text-[13px] font-semibold text-muted">Responses shared</span>
+            <p className="m-0 text-[15px]">{feedbackRes.count ?? 0} responses · {helpfulRes.count ?? 0} highlighted by artists</p>
           </div>
 
           {(profile.website || profile.instagram) && (

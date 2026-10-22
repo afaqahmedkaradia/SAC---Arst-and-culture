@@ -135,7 +135,7 @@ export default async function DashboardPage({
           <div>
             <h1 className="h-display m-0 text-[34px]">Welcome back, {me.display_name.split(" ")[0]}</h1>
             <p className="m-0 mt-1.5 text-[15px] text-muted">
-              {isArtist ? "Here's what happened with your work in the last 30 days." : "New work from the artists you follow, and your collections."}
+              {isArtist ? "How the community celebrated your work in the last 30 days." : "New work from the artists you follow, and your collections."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
@@ -174,15 +174,15 @@ export default async function DashboardPage({
             <dl className="m-0 grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
               <Stat label="Appreciations" value={stats.appreciations} />
               <Stat label="New followers" value={stats.followers} />
-              <Stat label="Feedback received" value={stats.feedback} />
+              <Stat label="Responses" value={stats.feedback} />
               <Stat label="Unread inquiries" value={stats.inquiries} />
             </dl>
 
             <div className="flex flex-wrap gap-6 items-start">
               <section aria-labelledby="fb-h" className="card flex-[3_1_420px] min-w-0 p-5 flex flex-col">
-                <h2 id="fb-h" className="m-0 mb-2 text-lg font-semibold">Feedback on your work</h2>
+                <h2 id="fb-h" className="m-0 mb-2 text-lg font-semibold">Responses to your work</h2>
                 {feedback.length === 0 && (
-                  <p className="text-sm text-muted">No feedback yet. Turn on &quot;Open for feedback&quot; on a project and ask a specific question.</p>
+                  <p className="text-sm text-muted">No responses yet. Turn on &quot;Invite responses&quot; on a project to hear what your work means to people.</p>
                 )}
                 {feedback.map((f) => (
                   <article key={f.id} className="border-t border-[#EEEDE9] py-4 flex gap-3.5">
@@ -198,7 +198,7 @@ export default async function DashboardPage({
                         <input type="hidden" name="value" value={f.helpful ? "0" : "1"} />
                         <input type="hidden" name="path" value="/dashboard" />
                         <button className={`btn btn-sm ${f.helpful ? "bg-good-tint text-good" : "btn-outline"}`} aria-pressed={f.helpful}>
-                          {f.helpful ? "Marked helpful" : "Mark as helpful"}
+                          {f.helpful ? "Highlighted" : "Highlight"}
                         </button>
                         {f.project && <Link href={`/p/${f.project.id}#feedback`} className="btn btn-sm btn-outline">Read in full</Link>}
                       </form>
@@ -306,7 +306,7 @@ export default async function DashboardPage({
         <section aria-labelledby="feed-h" className="card p-5 flex flex-col gap-4">
           <div className="flex justify-between items-baseline gap-3 flex-wrap">
             <h2 id="feed-h" className="m-0 text-lg font-semibold">New from artists you follow</h2>
-            <Link href={{ pathname: "/", query: { tab: "following" } }} className="text-sm font-semibold">See all</Link>
+            <Link href={{ pathname: "/explore", query: { tab: "following" } }} className="text-sm font-semibold">See all</Link>
           </div>
           {feed.length ? (
             <ProjectGrid projects={feed} />
@@ -327,12 +327,12 @@ export default async function DashboardPage({
             ))}
           </section>
           <section aria-labelledby="given-h" className="card flex-[1_1_320px] min-w-0 p-5 flex flex-col gap-3">
-            <h2 id="given-h" className="m-0 text-lg font-semibold">Feedback you&apos;ve given</h2>
-            {given.length === 0 && <p className="m-0 text-sm text-muted">Find projects marked &quot;Open for feedback&quot; in Discover.</p>}
+            <h2 id="given-h" className="m-0 text-lg font-semibold">Your responses to others</h2>
+            {given.length === 0 && <p className="m-0 text-sm text-muted">Respond to work you love from any project page.</p>}
             {given.map((g) => (
               <div key={g.id} className="flex justify-between gap-3 py-2 border-t border-[#EEEDE9] text-sm">
                 {g.project ? <Link href={`/p/${g.project.id}#feedback`} className="font-medium">{g.project.title}</Link> : <span>Removed project</span>}
-                <span className="text-muted whitespace-nowrap">{g.helpful ? "Marked helpful · " : ""}{timeAgo(g.created_at)}</span>
+                <span className="text-muted whitespace-nowrap">{g.helpful ? "Highlighted · " : ""}{timeAgo(g.created_at)}</span>
               </div>
             ))}
           </section>

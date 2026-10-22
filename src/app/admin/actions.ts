@@ -32,14 +32,14 @@ export async function setFeatured(form: FormData) {
   const supabase = await curator();
   await supabase.rpc("admin_set_featured", { target: String(form.get("project_id")), value: form.get("value") === "1" });
   revalidatePath("/admin");
-  revalidatePath("/");
+  revalidatePath("/"); revalidatePath("/explore");
 }
 
 export async function setRemoved(form: FormData) {
   const supabase = await curator();
   await supabase.rpc("admin_set_removed", { target: String(form.get("project_id")), value: form.get("value") === "1" });
   revalidatePath("/admin");
-  revalidatePath("/");
+  revalidatePath("/"); revalidatePath("/explore");
 }
 
 export async function resolveReport(form: FormData) {

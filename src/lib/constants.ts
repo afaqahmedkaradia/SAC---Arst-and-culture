@@ -8,6 +8,7 @@ export const DISCIPLINES = [
   "Sound",
   "Music",
   "Film",
+  "Calligraphy",
   "Writing",
   "Other",
 ] as const;
@@ -22,7 +23,15 @@ export const INQUIRY_KINDS = [
   { value: "other", label: "Something else" },
 ] as const;
 
-export const BANNER_COLORS = ["#2B2A6B", "#3D33E0", "#E8603C", "#1F7A6B", "#8E2C48", "#15151A", "#F5B83D", "#D9D4F7"];
+export const BANNER_COLORS = ["#007041", "#00532F", "#98111D", "#19A29C", "#3A4B39", "#141414", "#B98A16", "#0E2A1C"];
+
+// A person's colour, falling back to the community palette for older values.
+export function personColor(id: string, color: string | null | undefined): string {
+  if (color && BANNER_COLORS.includes(color)) return color;
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return BANNER_COLORS[Math.abs(h) % BANNER_COLORS.length];
+}
 
 export type BlockKind = "image" | "audio" | "video" | "text" | "pdf";
 
@@ -70,14 +79,14 @@ export function videoEmbedUrl(raw: string | null | undefined): string | null {
 
 // Placeholder artwork for projects without a cover: flat shapes in the SAC palette.
 const COVERS: Array<{ bg: string; a: string; b: string }> = [
-  { bg: "#2B2A6B", a: "width:46%;aspect-ratio:1;border-radius:50%;background:#F5B83D;left:27%;top:14%", b: "width:100%;height:24%;background:#E8603C;left:0;bottom:0" },
-  { bg: "#1B1B22", a: "width:38%;height:72%;background:#F4F3F0;left:31%;top:14%;border-radius:4px", b: "width:14%;aspect-ratio:1;border-radius:50%;background:#F5B83D;left:10%;top:12%" },
-  { bg: "#C9E3D6", a: "width:70%;height:5%;background:#1F7A6B;left:15%;top:48%;border-radius:4px", b: "width:34%;aspect-ratio:1;border-radius:50%;border:8px solid #1F7A6B;box-sizing:border-box;left:33%;top:25%" },
-  { bg: "#E8603C", a: "width:72%;aspect-ratio:1;border-radius:50%;background:#F4D9CC;left:-12%;top:28%", b: "width:16%;height:62%;background:#15151A;left:62%;top:18%;border-radius:4px" },
-  { bg: "#F4F3F0", a: "width:44%;height:60%;background:#2B2A6B;left:12%;top:18%;transform:rotate(-6deg)", b: "width:32%;height:42%;background:#F5B83D;left:52%;top:34%;transform:rotate(5deg)" },
-  { bg: "#8E2C48", a: "width:50%;aspect-ratio:1;border-radius:50%;border:12px solid #F5B83D;box-sizing:border-box;left:25%;top:12%", b: "width:100%;height:14%;background:#15151A;left:0;bottom:0" },
-  { bg: "#D9D4F7", a: "width:32%;aspect-ratio:1;border-radius:50%;background:#3D33E0;left:18%;top:26%", b: "width:24%;aspect-ratio:1;border-radius:50%;background:#E8603C;left:54%;top:44%" },
-  { bg: "#1F7A6B", a: "width:9%;height:52%;background:#C9E3D6;left:22%;top:24%;border-radius:4px", b: "width:9%;height:30%;background:#C9E3D6;left:40%;top:35%;border-radius:4px" },
+  { bg: "#007041", a: "width:46%;aspect-ratio:1;border-radius:50%;background:#F1C85D;left:27%;top:14%", b: "width:100%;height:24%;background:#EBF4F0;left:0;bottom:0" },
+  { bg: "#98111D", a: "width:60%;aspect-ratio:1;border-radius:999px 999px 0 0;left:20%;bottom:0;background:#F6E7C1", b: "width:22%;aspect-ratio:1;border-radius:50%;left:39%;top:14%;background:#F1C85D" },
+  { bg: "#F6E7C1", a: "width:40%;aspect-ratio:1;left:30%;top:22%;border:6px solid #98111D;box-sizing:border-box", b: "width:40%;aspect-ratio:1;left:30%;top:22%;border:6px solid #007041;box-sizing:border-box;transform:rotate(45deg)" },
+  { bg: "#19A29C", a: "width:72%;aspect-ratio:1;border-radius:50%;background:#EBF4F0;left:-12%;top:28%", b: "width:16%;height:62%;background:#0E2A1C;left:62%;top:18%;border-radius:4px" },
+  { bg: "#3A4B39", a: "width:56%;aspect-ratio:1;border-radius:999px 999px 0 0;left:22%;bottom:0;background:#F1C85D", b: "width:100%;height:12%;background:#0E2A1C;left:0;bottom:0" },
+  { bg: "#EBF4F0", a: "width:44%;height:60%;background:#007041;left:12%;top:18%;border-radius:999px 999px 6px 6px", b: "width:30%;height:42%;background:#98111D;left:56%;top:36%;border-radius:999px 999px 6px 6px" },
+  { bg: "#F1C85D", a: "width:60%;aspect-ratio:1;border-radius:50%;background:#98111D;left:20%;top:44%", b: "width:100%;height:30%;background:#3A4B39;left:0;bottom:0" },
+  { bg: "#141414", a: "width:9%;height:52%;background:#6BCFA5;left:22%;top:24%;border-radius:4px", b: "width:9%;height:30%;background:#F1C85D;left:40%;top:35%;border-radius:4px" },
 ];
 
 function hash(s: string): number {
