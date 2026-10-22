@@ -19,13 +19,13 @@ export async function SiteHeader() {
           <span className="font-display font-black text-[22px] tracking-[-0.02em]">SAC</span>
         </Link>
 
-        <div className="flex flex-wrap gap-x-8 font-display text-xs font-bold tracking-[0.14em] uppercase">
+        <div className="order-last w-full sm:order-none sm:w-auto flex flex-wrap gap-x-8 font-display text-xs font-bold tracking-[0.14em] uppercase">
           <Link href="/explore" className={navLink}>Explore</Link>
           <Link href="/artists" className={navLink}>Artists</Link>
           {profile?.is_admin && <Link href="/admin" className={navLink}>Curators</Link>}
         </div>
 
-        <Form action="/explore" role="search" className="flex-[1_1_200px] min-w-[170px] max-w-[420px] flex items-center gap-2 bg-white border border-line rounded-full px-4 h-11">
+        <Form action="/explore" role="search" className="hidden md:flex flex-[1_1_200px] min-w-[170px] max-w-[420px] items-center gap-2 bg-white border border-line rounded-full px-4 h-11">
           <SearchIcon size={17} className="text-muted shrink-0" />
           <label htmlFor="site-search" className="sr-only">Search work and artists</label>
           <input
