@@ -9,6 +9,7 @@ export const DISCIPLINES = [
   "Music",
   "Film",
   "Calligraphy",
+  "Photography",
   "Writing",
   "Other",
 ] as const;

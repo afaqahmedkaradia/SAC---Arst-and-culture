@@ -15,7 +15,7 @@ export function StarMark({ size = 34, fill = "#007041", center = "#F1C85D" }: { 
 // An outlined star with rings, used as a large slow-turning decoration.
 export function StarOutline({
   size,
-  stroke = "#E2E8E2",
+  stroke = "#EADFCB",
   inner,
   strokeWidth = 0.5,
   className = "",
@@ -40,6 +40,18 @@ export function StarOutline({
           </>
         )}
         <circle r="48" />
+      </g>
+    </svg>
+  );
+}
+
+// The SAC logo mark: two outlined squares, crimson and green, forming the star.
+export function LogoMark({ size = 40, a = "#B00012", b = "#1F7A4D" }: { size?: number; a?: string; b?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
+      <g transform="translate(20 20)" fill="none" strokeWidth="2.6">
+        <rect x="-11" y="-11" width="22" height="22" stroke={a} />
+        <rect x="-11" y="-11" width="22" height="22" stroke={b} transform="rotate(45)" />
       </g>
     </svg>
   );

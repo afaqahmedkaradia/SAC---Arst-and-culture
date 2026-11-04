@@ -3,7 +3,7 @@
 A community platform where artists of every discipline share projects, get feedback and get discovered.
 
 - **App:** Next.js 16, deployed on Webflow Cloud
-- **Design:** the "Signature" direction — Ismaili green, gold and crimson, Montserrat and Mulish, the eight-point star motif
+- **Design:** the "Illustrated" direction (G) — crimson on white and cream with community green and gold, Mulish with a Fraunces italic accent, illustrations for every art form, and sample hero photos in `public/landing` (replace with real community photos before launch)
 - **Accounts, database and files:** Supabase
 - **Public pages (home, about, guidelines):** built in the Webflow Designer
 
