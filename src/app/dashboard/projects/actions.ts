@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { canDraft, isApprovedArtist, requireViewer } from "@/lib/viewer";
-import { DISCIPLINES, type BlockKind } from "@/lib/constants";
+import { DISCIPLINES, WORK_TYPES, workTypeOf, type BlockKind, type WorkType } from "@/lib/constants";
 
 export type EditorBlock = {
   kind: BlockKind;
@@ -23,6 +23,9 @@ export type EditorPayload = {
   cover_path?: string | null;
   feedback_open: boolean;
   feedback_question?: string | null;
+  work_type: WorkType;
+  original_credit?: string | null;
+  declared?: boolean;
   blocks: EditorBlock[];
   credits: EditorCredit[];
 };
@@ -63,6 +66,15 @@ export async function saveProject(payload: EditorPayload, publish: boolean): Pro
     return { error: "Add at least one image, sound, video, text or PDF before publishing." };
   }
 
+  const workType = WORK_TYPES.some((w) => w.id === payload.work_type) ? payload.work_type : "original";
+  const credit = str(payload.original_credit, 200);
+  if (publish && workTypeOf(workType).needsCredit && !credit) {
+    return { error: "Name the original artist or work this is based on before publishing." };
+  }
+  if (publish && !payload.declared) {
+    return { error: "Tick the declaration to confirm the work is yours to share and its work type is right." };
+  }
+
   const tags = [...new Set((payload.tags ?? []).map((t) => t.trim().toLowerCase().replace(/^#/, "").slice(0, 30)).filter(Boolean))].slice(0, 10);
   const feedbackOpen = !!payload.feedback_open;
   const row = {
@@ -74,6 +86,9 @@ export async function saveProject(payload: EditorPayload, publish: boolean): Pro
     feedback_open: feedbackOpen,
     feedback_question: feedbackOpen ? str(payload.feedback_question, 300) : null,
     status: publish ? "published" : "draft",
+    work_type: workType,
+    original_credit: workTypeOf(workType).needsCredit ? credit : null,
+    ...(publish ? { declared_at: new Date().toISOString() } : {}),
   };
 
   const supabase = await createClient();

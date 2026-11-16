@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/viewer";
-import { mediaUrl, timeAgo, videoEmbedUrl } from "@/lib/constants";
+import { mediaUrl, timeAgo, videoEmbedUrl, workTypeLabel, workTypeOf } from "@/lib/constants";
 import { countOf, PROJECT_CARD_SELECT, type PersonLite, type ProjectCard } from "@/lib/types";
 import { Avatar } from "@/components/Avatar";
 import { Cover } from "@/components/Cover";
@@ -48,6 +48,8 @@ async function load(id: string) {
         cover_path: string | null;
         status: string;
         featured: boolean;
+        work_type: string | null;
+        original_credit: string | null;
         feedback_open: boolean;
         feedback_question: string | null;
         published_at: string | null;
@@ -191,6 +193,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
   const count = countOf(project.appreciations);
   const published = project.status === "published";
+  const typeLabel = workTypeLabel(project.work_type, project.original_credit);
 
   return (
     <main className="page pt-10 pb-20 flex flex-col gap-8">
@@ -206,9 +209,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             {project.discipline}
           </Link>
           {project.featured && <span className="chip bg-saffron text-ink">Featured by SAC</span>}
+          {typeLabel && <span className="chip bg-gold-tint text-[#7A4E00] font-semibold">{typeLabel}</span>}
         </div>
         <h1 className="h-display m-0 text-[clamp(34px,4.4vw,56px)] leading-[1.05]">{project.title}</h1>
         {project.summary && <p className="m-0 text-lg text-body max-w-[760px] leading-relaxed">{project.summary}</p>}
+        {typeLabel && (
+          <p className="m-0 text-sm text-muted max-w-[760px]">
+            <b className="text-body">{workTypeOf(project.work_type).label}:</b> {workTypeOf(project.work_type).hint}
+          </p>
+        )}
 
         <div className="flex flex-wrap justify-between gap-4 items-center">
           <div className="flex items-center gap-3 flex-wrap">

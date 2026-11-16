@@ -8,7 +8,7 @@ import {
   sendInquiry,
   type ActionState,
 } from "@/app/actions/social";
-import { INQUIRY_KINDS } from "@/lib/constants";
+import { INQUIRY_KINDS, REPORT_CATEGORIES } from "@/lib/constants";
 import { SubmitButton } from "@/components/SubmitButton";
 import { BookmarkIcon } from "@/components/Icons";
 
@@ -168,8 +168,16 @@ export function ReportForm({ projectId, feedbackId, path }: { projectId?: string
       <input type="hidden" name="project_id" value={projectId ?? ""} />
       <input type="hidden" name="feedback_id" value={feedbackId ?? ""} />
       <input type="hidden" name="path" value={path} />
-      <label htmlFor={`rep-${feedbackId ?? projectId}`} className="label mb-0">What&apos;s wrong?</label>
-      <textarea id={`rep-${feedbackId ?? projectId}`} name="reason" rows={2} maxLength={1000} required className="input" />
+      {projectId && (
+        <div>
+          <label htmlFor={`repcat-${projectId}`} className="label">Reason</label>
+          <select id={`repcat-${projectId}`} name="category" className="input" defaultValue="not_original">
+            {REPORT_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
+        </div>
+      )}
+      <label htmlFor={`rep-${feedbackId ?? projectId}`} className="label mb-0">{projectId ? "Tell the curators more" : "What’s wrong?"}</label>
+      <textarea id={`rep-${feedbackId ?? projectId}`} name="reason" rows={2} placeholder={projectId ? "e.g. the original artist or a link to it" : undefined} maxLength={1000} required className="input" />
       <Note state={state} />
       <SubmitButton className="btn btn-outline btn-sm self-start" pendingText="Sending…">Send to curators</SubmitButton>
     </form>

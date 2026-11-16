@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { LogoMark } from "@/components/Star";
+import { OPERATOR } from "@/lib/constants";
 // Fonts are bundled with the app (no request to Google at build or run time).
 import "@fontsource/fraunces/latin-600-italic.css";
 import "@fontsource-variable/mulish/wght.css";
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <p className="m-0 text-sm leading-relaxed">
                 Space for Arts &amp; Culture celebrates the creative voices of the Ismaili community. Artists keep full rights to everything they share.
               </p>
+              <p className="m-0 text-sm font-semibold text-ink">Operated by {OPERATOR}</p>
             </div>
             <nav aria-label="Footer" className="flex flex-wrap gap-x-16 gap-y-6 text-sm">
               <div className="flex flex-col gap-2">
@@ -48,7 +50,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <Link href="/join" className="text-ink no-underline py-1">Join SAC</Link>
                 <Link href="/login" className="text-ink no-underline py-1">Log in</Link>
               </div>
+              <div className="flex flex-col gap-2">
+                <span className="eyebrow before:hidden text-xs">Policies</span>
+                <Link href="/guidelines" className="text-ink no-underline py-1">Community guidelines</Link>
+                <Link href="/copyright" className="text-ink no-underline py-1">Copyright and takedowns</Link>
+                <Link href="/terms" className="text-ink no-underline py-1">Terms of use</Link>
+                <Link href="/privacy" className="text-ink no-underline py-1">Privacy</Link>
+              </div>
             </nav>
+          </div>
+          <div className="page max-w-[1400px] pb-8">
+            <p className="m-0 text-[13px] text-muted">
+              Works and views on SAC are the artists&apos; own. A Curator&apos;s pick celebrates work and is not an official endorsement by the Ismaili Council for Canada.
+            </p>
           </div>
         </footer>
       </body>

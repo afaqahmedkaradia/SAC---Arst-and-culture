@@ -6,7 +6,7 @@ import { getViewer } from "@/lib/viewer";
 import { PROJECT_CARD_SELECT, countOf, type PersonLite, type Profile, type ProjectCard } from "@/lib/types";
 import { Avatar } from "@/components/Avatar";
 import { StarOutline } from "@/components/Star";
-import { mediaUrl, personColor, timeAgo } from "@/lib/constants";
+import { CV_KINDS, LINK_PLATFORMS, mediaUrl, personColor, timeAgo, type ProfileLink } from "@/lib/constants";
 import { Cover } from "@/components/Cover";
 import { PinIcon } from "@/components/Icons";
 import { ProjectGrid } from "@/components/ProjectCard";
@@ -131,6 +131,15 @@ export default async function ProfilePage({
   const color = personColor(profile.id, profile.banner_color);
   const coverSrc = mediaUrl(spotlight?.cover_path);
   const handle = profile.instagram?.replace(/^@/, "");
+  // Links from settings; older profiles may still only have the website and Instagram fields.
+  const links: ProfileLink[] = (profile.links ?? []).length
+    ? profile.links
+    : [
+        ...(profile.website ? [{ platform: "website" as const, url: external(profile.website) }] : []),
+        ...(handle ? [{ platform: "instagram" as const, url: `https://instagram.com/${handle}` }] : []),
+      ];
+  const linkedin = links.find((l) => l.platform === "linkedin");
+  const cv = [...(profile.cv ?? [])].sort((a, b) => (b.year || "").localeCompare(a.year || ""));
   const stats = [
     { n: published.length, label: published.length === 1 ? "Project" : "Projects" },
     { n: appreciationsRes.count ?? 0, label: "Appreciations" },
@@ -199,6 +208,9 @@ export default async function ProfilePage({
               )}
               <span>Member since {new Date(profile.created_at).toLocaleDateString("en-CA", { month: "long", year: "numeric" })}</span>
               {handle && <span>@{handle}</span>}
+              {linkedin && (
+                <a href={external(linkedin.url)} target="_blank" rel="noreferrer" className="text-muted">LinkedIn ↗</a>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap gap-2.5 sm:pt-6">
@@ -340,6 +352,22 @@ export default async function ProfilePage({
                   )}
                 </div>
               )}
+              {cv.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  <h2 className="m-0 text-2xl font-black tracking-[-0.02em]">CV and recognition</h2>
+                  <ul className="m-0 p-0 list-none flex flex-col">
+                    {cv.map((e, i) => (
+                      <li key={i} className="flex flex-wrap gap-x-6 gap-y-1 py-3.5 border-b border-line">
+                        <span className="w-16 shrink-0 font-black text-accent">{e.year}</span>
+                        <span className="flex-1 min-w-[200px] flex flex-col">
+                          <span className="font-bold">{e.title}</span>
+                          <span className="text-sm text-muted">{[CV_KINDS.find((k) => k.id === e.kind)?.label, e.place].filter(Boolean).join(" · ")}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
@@ -443,24 +471,14 @@ export default async function ProfilePage({
             </div>
           )}
 
-          {(profile.website || handle || profile.work_link) && (
+          {links.length > 0 && (
             <div className="border-[1.5px] border-line rounded-[22px] p-5 flex flex-col gap-1">
               <span className="eyebrow before:hidden text-xs mb-1.5">Find {profile.display_name.split(" ")[0]} online</span>
-              {handle && (
-                <a href={`https://instagram.com/${handle}`} target="_blank" rel="noreferrer" className="flex justify-between font-extrabold text-[15px] no-underline py-1.5">
-                  Instagram <span aria-hidden="true">↗</span>
+              {links.map((l, i) => (
+                <a key={i} href={external(l.url)} target="_blank" rel="noreferrer" className="flex justify-between font-extrabold text-[15px] no-underline py-1.5">
+                  {LINK_PLATFORMS.find((p) => p.id === l.platform)?.label ?? "Link"} <span aria-hidden="true">↗</span>
                 </a>
-              )}
-              {profile.website && (
-                <a href={external(profile.website)} target="_blank" rel="noreferrer" className="flex justify-between font-extrabold text-[15px] no-underline py-1.5">
-                  Website <span aria-hidden="true">↗</span>
-                </a>
-              )}
-              {profile.work_link && profile.work_link !== profile.website && (
-                <a href={external(profile.work_link)} target="_blank" rel="noreferrer" className="flex justify-between font-extrabold text-[15px] no-underline py-1.5">
-                  More work <span aria-hidden="true">↗</span>
-                </a>
-              )}
+              ))}
             </div>
           )}
 

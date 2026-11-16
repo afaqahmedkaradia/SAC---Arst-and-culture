@@ -117,7 +117,9 @@ export function JoinForm() {
 
       <label className="flex gap-2.5 items-start text-sm leading-normal text-body">
         <input type="checkbox" name="agree" required className="w-5 h-5 m-0 accent-accent shrink-0" />
-        <span>I agree to the community guidelines. Artists keep full rights to everything they post.</span>
+        <span>
+          I agree to the <Link href="/terms" target="_blank">terms of use</Link> and <Link href="/guidelines" target="_blank">community guidelines</Link>, and I&apos;ve read the <Link href="/privacy" target="_blank">privacy policy</Link>. Artists keep full rights to everything they share.
+        </span>
       </label>
 
       {state?.error && (

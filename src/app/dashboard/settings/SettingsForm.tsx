@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
 import { Avatar } from "@/components/Avatar";
 import { SubmitButton } from "@/components/SubmitButton";
+import { CvEditor, LinksEditor } from "./LinksAndCv";
 
 export function SettingsForm({ profile }: { profile: Profile }) {
   const [state, action] = useActionState<ProfileState, FormData>(updateProfile, undefined);
@@ -93,16 +94,11 @@ export function SettingsForm({ profile }: { profile: Profile }) {
             <label htmlFor="location" className="label">Location</label>
             <input id="location" name="location" defaultValue={profile.location ?? ""} maxLength={80} className="input" />
           </div>
-          <div>
-            <label htmlFor="website" className="label">Website</label>
-            <input id="website" name="website" defaultValue={profile.website ?? ""} maxLength={300} className="input" />
-          </div>
-          <div>
-            <label htmlFor="instagram" className="label">Instagram handle</label>
-            <input id="instagram" name="instagram" defaultValue={profile.instagram ?? ""} maxLength={100} placeholder="@yourname" className="input" />
-          </div>
         </div>
       </section>
+
+      <LinksEditor initial={profile.links ?? []} />
+      {isArtist && <CvEditor initial={profile.cv ?? []} />}
 
       <section className="card p-5 sm:p-6 flex flex-col gap-5">
         <fieldset className="border-0 p-0 m-0">

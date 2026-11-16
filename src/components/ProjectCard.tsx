@@ -3,9 +3,11 @@ import { Avatar } from "@/components/Avatar";
 import { Cover } from "@/components/Cover";
 import { ChatIcon, ThumbIcon } from "@/components/Icons";
 import { countOf, type ProjectCard as Card } from "@/lib/types";
+import { workTypeLabel } from "@/lib/constants";
 
 export function ProjectCard({ p, showOwner = true }: { p: Card; showOwner?: boolean }) {
   const count = countOf(p.appreciations);
+  const typeLabel = workTypeLabel(p.work_type, p.original_credit);
   return (
     <article className="flex flex-col gap-3">
       <Link
@@ -44,6 +46,7 @@ export function ProjectCard({ p, showOwner = true }: { p: Card; showOwner?: bool
             )}
             <span>{p.discipline}</span>
           </div>
+          {typeLabel && <span className="text-[13px] font-semibold text-[#7A4E00] truncate">{typeLabel}</span>}
         </div>
         <span className="flex items-center gap-1.5 text-[13px] text-muted whitespace-nowrap pt-0.5">
           <ThumbIcon size={15} />

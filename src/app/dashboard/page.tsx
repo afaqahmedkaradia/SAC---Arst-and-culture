@@ -52,6 +52,13 @@ export default async function DashboardPage({
     sp.deleted && "Project deleted.",
   ].filter(Boolean) as string[];
 
+  // The latest curator review, shown while an application is open or declined.
+  let review: { decision: string; note: string | null } | null = null;
+  if (me.role === "artist" && me.artist_status !== "approved") {
+    const { data } = await supabase.from("artist_reviews").select("decision,note").eq("profile_id", me.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    review = data;
+  }
+
   // ---------------- Artist data ----------------
   let projects: MyProject[] = [];
   let stats = { appreciations: 0, followers: 0, feedback: 0, inquiries: 0 };
@@ -147,14 +154,22 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        {me.role === "artist" && me.artist_status === "pending" && (
+        {me.role === "artist" && me.artist_status === "pending" && review?.decision === "changes" && (
+          <div className="bg-gold-tint border-[1.5px] border-gold rounded-xl px-5 py-4 flex flex-col gap-1.5">
+            <strong className="text-[15px]">A curator asked for a few changes before your page goes live</strong>
+            {review.note && <p className="m-0 text-[15px] leading-relaxed whitespace-pre-line">{review.note}</p>}
+            <p className="m-0 text-sm text-body">Update your <Link href="/dashboard/settings">profile</Link> or projects, and the curators will take another look.</p>
+          </div>
+        )}
+        {me.role === "artist" && me.artist_status === "pending" && review?.decision !== "changes" && (
           <p className="m-0 bg-accent-tint rounded-xl px-5 py-4 text-[15px] leading-relaxed">
             <strong>Your artist account is waiting for curator approval.</strong> In the meantime, complete your profile and draft your first projects. You&apos;ll be able to publish as soon as you&apos;re approved.
           </p>
         )}
         {me.role === "artist" && me.artist_status === "declined" && (
           <p className="m-0 bg-danger-tint text-ink rounded-xl px-5 py-4 text-[15px] leading-relaxed">
-            Your artist account wasn&apos;t approved this time. You can still follow artists, give feedback and build collections. Reach out to the SAC curators if you have questions.
+            Your artist account wasn&apos;t approved this time. You can still follow artists, give feedback and build collections. Reach out to the SAC curators if you have questions or would like a second review.
+            {review?.note && <><br /><b>The curator&apos;s note:</b> {review.note}</>}
           </p>
         )}
         {me.role === "member" && (

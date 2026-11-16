@@ -133,3 +133,88 @@ export function timeAgo(iso: string): string {
   if (d < 30) return `${Math.floor(d)} days ago`;
   return new Date(iso).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" });
 }
+
+// ---------------------------------------------------------------------------
+// Policies (see supabase/migrations/0003_policies.sql)
+// ---------------------------------------------------------------------------
+
+export const OPERATOR = "Arts and Culture, Ismaili Council for Canada";
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "";
+
+export type WorkType = "original" | "study" | "inspired" | "traditional" | "cover" | "collaboration" | "ai_assisted";
+
+// What kind of work a project is. Shown publicly on the project page and its card.
+export const WORK_TYPES: { id: WorkType; label: string; hint: string; needsCredit: boolean; sellable: boolean }[] = [
+  { id: "original", label: "Original work", hint: "Your own idea and execution.", needsCredit: false, sellable: true },
+  { id: "study", label: "Study or practice copy", hint: "A copy or close study of another artist’s work, made to learn.", needsCredit: true, sellable: false },
+  { id: "inspired", label: "Inspired by", hint: "A new work that clearly draws on another work or style.", needsCredit: true, sellable: true },
+  { id: "traditional", label: "Traditional form", hint: "An inherited form or pattern, such as classical scripts, folk designs or classical repertoire.", needsCredit: false, sellable: true },
+  { id: "cover", label: "Cover or interpretation", hint: "A performance of someone else’s music, choreography or play.", needsCredit: true, sellable: false },
+  { id: "collaboration", label: "Collaboration", hint: "Made together with others. Add them under Credits.", needsCredit: false, sellable: true },
+  { id: "ai_assisted", label: "AI-assisted", hint: "AI tools were used to make part of the work.", needsCredit: false, sellable: false },
+];
+
+export function workTypeOf(id: string | null | undefined) {
+  return WORK_TYPES.find((w) => w.id === id) ?? WORK_TYPES[0];
+}
+
+// The public label, e.g. "Study after Sadequain". Null for original work, which needs no label.
+export function workTypeLabel(id: string | null | undefined, credit: string | null | undefined): string | null {
+  const c = credit?.trim();
+  switch (id) {
+    case "study": return c ? `Study after ${c}` : "Study";
+    case "inspired": return c ? `Inspired by ${c}` : "Inspired by another work";
+    case "cover": return c ? `Cover of ${c}` : "Cover";
+    case "traditional": return "Traditional form";
+    case "collaboration": return "Collaboration";
+    case "ai_assisted": return "AI-assisted";
+    default: return null;
+  }
+}
+
+export const LINK_PLATFORMS = [
+  { id: "linkedin", label: "LinkedIn" },
+  { id: "website", label: "Website" },
+  { id: "instagram", label: "Instagram" },
+  { id: "youtube", label: "YouTube" },
+  { id: "vimeo", label: "Vimeo" },
+  { id: "tiktok", label: "TikTok" },
+  { id: "spotify", label: "Spotify" },
+  { id: "soundcloud", label: "SoundCloud" },
+  { id: "bandcamp", label: "Bandcamp" },
+  { id: "behance", label: "Behance" },
+  { id: "artstation", label: "ArtStation" },
+  { id: "imdb", label: "IMDb" },
+  { id: "other", label: "Other" },
+] as const;
+export type LinkPlatform = (typeof LINK_PLATFORMS)[number]["id"];
+export type ProfileLink = { platform: LinkPlatform; url: string };
+
+export const CV_KINDS = [
+  { id: "exhibition", label: "Exhibition" },
+  { id: "performance", label: "Performance" },
+  { id: "award", label: "Award" },
+  { id: "residency", label: "Residency" },
+  { id: "education", label: "Education" },
+  { id: "press", label: "Press" },
+  { id: "other", label: "Other" },
+] as const;
+export type CvKind = (typeof CV_KINDS)[number]["id"];
+export type CvEntry = { year: string; kind: CvKind; title: string; place?: string };
+
+export const REPORT_CATEGORIES = [
+  { id: "not_original", label: "Not original or not credited" },
+  { id: "rights", label: "Uses my work, music or image without permission" },
+  { id: "guidelines", label: "Breaks the community guidelines" },
+  { id: "other", label: "Something else" },
+] as const;
+
+// The six checks a curator makes before approving an artist.
+export const CURATOR_CHECKS = [
+  { id: "community", label: "Community connection", hint: "Meets SAC’s eligibility rule" },
+  { id: "real", label: "Real and reachable", hint: "Genuine name and details, no duplicate account" },
+  { id: "own_work", label: "Their own work", hint: "Work types honest; reverse image search on the first project" },
+  { id: "profile", label: "Complete profile", hint: "Photo, a bio of two sentences or more, an art form" },
+  { id: "guidelines", label: "Within the guidelines", hint: "Including respectful treatment of faith and sacred material" },
+  { id: "consent", label: "Rights and consent", hint: "People shown, especially children, appear with consent; music or footage is theirs or credited" },
+] as const;

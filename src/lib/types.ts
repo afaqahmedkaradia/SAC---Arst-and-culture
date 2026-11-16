@@ -1,3 +1,5 @@
+import type { CvEntry, ProfileLink } from "@/lib/constants";
+
 export type Profile = {
   id: string;
   username: string;
@@ -15,6 +17,8 @@ export type Profile = {
   banner_color: string;
   disciplines: string[];
   available_for: string[];
+  links: ProfileLink[];
+  cv: CvEntry[];
   created_at: string;
 };
 
@@ -29,12 +33,14 @@ export type ProjectCard = {
   feedback_open: boolean;
   status: string;
   published_at: string | null;
+  work_type?: string | null;
+  original_credit?: string | null;
   owner: PersonLite | null;
   appreciations: { count: number }[];
 };
 
 export const PROJECT_CARD_SELECT =
-  "id,title,discipline,cover_path,featured,feedback_open,status,published_at," +
+  "id,title,discipline,cover_path,featured,feedback_open,status,published_at,work_type,original_credit," +
   "owner:profiles!projects_owner_id_fkey(id,username,display_name,avatar_path,banner_color)," +
   "appreciations(count)";
 

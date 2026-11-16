@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { BLOCK_LABELS, DISCIPLINES, mediaUrl, videoEmbedUrl, type BlockKind } from "@/lib/constants";
+import { BLOCK_LABELS, DISCIPLINES, WORK_TYPES, mediaUrl, videoEmbedUrl, workTypeOf, type BlockKind, type WorkType } from "@/lib/constants";
 import { ArrowDownIcon, ArrowUpIcon, BackIcon, TrashIcon } from "@/components/Icons";
 import { saveProject, type EditorBlock, type EditorCredit, type EditorPayload } from "./actions";
 
@@ -38,6 +38,9 @@ export function ProjectEditor({
   const [credits, setCredits] = useState<Credit[]>(initial.credits.map((c) => ({ ...c, key: newKey() })));
   const [feedbackOpen, setFeedbackOpen] = useState(initial.feedback_open);
   const [question, setQuestion] = useState(initial.feedback_question ?? "");
+  const [workType, setWorkType] = useState<WorkType>(initial.work_type ?? "original");
+  const [credit, setCredit] = useState(initial.original_credit ?? "");
+  const [declared, setDeclared] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "error" | "ok"; text: string } | null>(null);
   const [pending, start] = useTransition();
@@ -116,6 +119,9 @@ export function ProjectEditor({
       cover_path: cover,
       feedback_open: feedbackOpen,
       feedback_question: question,
+      work_type: workType,
+      original_credit: credit,
+      declared,
       blocks: blocks.map(({ key: _k, ...b }) => b),
       credits: credits.filter((c) => c.name.trim() || c.username?.trim()).map(({ key: _k, ...c }) => c),
     };
@@ -158,8 +164,8 @@ export function ProjectEditor({
             <button
               type="button"
               className="btn btn-primary text-sm"
-              disabled={busy || !canPublish}
-              title={canPublish ? undefined : "Available once a curator approves your artist account"}
+              disabled={busy || !canPublish || !declared}
+              title={!canPublish ? "Available once a curator approves your artist account" : !declared ? "Tick the declaration under “What kind of work is this?” first" : undefined}
               onClick={() => save(true)}
             >
               {initial.status === "published" ? "Save changes" : "Publish"}
@@ -172,6 +178,11 @@ export function ProjectEditor({
         {!canPublish && (
           <p className="m-0 mb-4 text-sm bg-accent-tint text-ink rounded-lg px-4 py-3">
             Your artist account is waiting for curator approval. You can build and save drafts now and publish once you&apos;re approved.
+          </p>
+        )}
+        {canPublish && !declared && (
+          <p className="m-0 mb-4 text-sm bg-soft text-body rounded-lg px-4 py-3">
+            To {initial.status === "published" ? "save changes to" : "publish"} this project, choose its work type and tick the declaration in the sidebar.
           </p>
         )}
         {message && (
@@ -273,6 +284,39 @@ export function ProjectEditor({
         </section>
 
         <aside aria-label="Project settings" className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
+          <section className="card p-5 flex flex-col gap-3.5">
+            <fieldset className="border-0 p-0 m-0 flex flex-col gap-2">
+              <legend className="text-base font-semibold mb-1">What kind of work is this?</legend>
+              <p className="m-0 hint">Shown on the project so audiences know what they&apos;re looking at. Studies and copies are welcome when they&apos;re labelled.</p>
+              {WORK_TYPES.map((w) => (
+                <label key={w.id} className={`flex gap-3 items-start rounded-[10px] border px-3 py-2.5 cursor-pointer ${workType === w.id ? "border-ink bg-cream" : "border-line"}`}>
+                  <input type="radio" name="work_type" value={w.id} checked={workType === w.id} onChange={() => setWorkType(w.id)} className="w-[18px] h-[18px] mt-0.5 accent-accent shrink-0" />
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-[15px] font-semibold">{w.label}</span>
+                    <span className="text-[13px] text-muted leading-snug">{w.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+            {workTypeOf(workType).needsCredit && (
+              <div>
+                <label htmlFor="origcredit" className="label">Original artist or work</label>
+                <input id="origcredit" value={credit} onChange={(e) => setCredit(e.target.value)} maxLength={200} required placeholder={workType === "cover" ? "e.g. “Song title” by the composer" : "e.g. Sadequain, “Surah Rahman” mural"} className="input" />
+                <p className="hint mt-1.5 mb-0">Required to publish. It appears in the label on your project.</p>
+              </div>
+            )}
+            {!workTypeOf(workType).sellable && (
+              <p className="m-0 text-[13px] text-body bg-soft rounded-lg px-3 py-2">This kind of work can be shown on SAC but not offered for sale.</p>
+            )}
+            <label className="flex gap-2.5 items-start text-sm leading-normal text-body border-t border-line pt-3.5">
+              <input type="checkbox" checked={declared} onChange={(e) => setDeclared(e.target.checked)} className="w-5 h-5 m-0 accent-accent shrink-0" />
+              <span>
+                I made this work, I have the right to share everything in it (including music, photos and the people shown), and the work type above is accurate. See the{" "}
+                <Link href="/guidelines" target="_blank">community guidelines</Link>.
+              </span>
+            </label>
+          </section>
+
           <section className="card p-5 flex flex-col gap-3.5">
             <h2 className="m-0 text-base font-semibold">Details</h2>
             <div>

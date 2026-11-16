@@ -28,6 +28,8 @@ export default async function NewProjectPage() {
         cover_path: null,
         feedback_open: true,
         feedback_question: "",
+        work_type: "original",
+        original_credit: "",
         blocks: [{ kind: "image" }, { kind: "text", text_body: "" }],
         credits: [],
       }}

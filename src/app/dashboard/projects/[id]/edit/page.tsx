@@ -44,6 +44,8 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
           cover_path: p.cover_path,
           feedback_open: p.feedback_open,
           feedback_question: p.feedback_question,
+          work_type: p.work_type ?? "original",
+          original_credit: p.original_credit,
           blocks: (blocks ?? []).map((b) => ({ ...b, kind: b.kind as BlockKind })),
           credits: ((credits ?? []) as unknown as { name: string; role: string | null; person: { username: string } | null }[]).map((c) => ({
             name: c.name,

@@ -35,6 +35,11 @@ You only do steps 1–4 once.
 
 This creates all the tables, the security rules and a file storage bucket called `media`.
 
+Then run the later files the same way, in order, each once:
+
+- [`0002_signature_colours.sql`](supabase/migrations/0002_signature_colours.sql)
+- [`0003_policies.sql`](supabase/migrations/0003_policies.sql): work types and the upload declaration, profile links and CV, report reasons, and curator reviews
+
 ### 2. Set up sign-in emails (Supabase)
 
 1. Go to **Authentication → URL Configuration**.
@@ -57,6 +62,7 @@ For quick testing you can turn off **Authentication → Sign In / Providers → 
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | your `sb_publishable_…` key | Variable |
 | `NEXT_PUBLIC_SITE_URL` | e.g. `https://your-site.webflow.io/app` | Variable |
 | `NEXT_PUBLIC_BASE_PATH` | `/app` | Variable |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | the address shown on the policy pages, e.g. `sac@yourdomain.ca` | Variable (optional) |
 
 4. Deploy. Every push to the `main` branch deploys again automatically.
 

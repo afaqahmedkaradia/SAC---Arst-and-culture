@@ -36,7 +36,7 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
   if (!displayName) return { error: "Please add your name." };
   if (!email) return { error: "Please add your email address." };
   if (password.length < 10) return { error: "Your password needs at least 10 characters." };
-  if (form.get("agree") !== "on") return { error: "Please agree to the community guidelines." };
+  if (form.get("agree") !== "on") return { error: "Please agree to the terms of use and community guidelines." };
   if (role === "artist" && disciplines.length === 0) return { error: "Pick at least one discipline." };
 
   const supabase = await createClient();
@@ -45,7 +45,7 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
     password,
     options: {
       emailRedirectTo: `${await appUrl()}/auth/confirm?next=/dashboard`,
-      data: { display_name: displayName, role, disciplines, work_link: workLink },
+      data: { display_name: displayName, role, disciplines, work_link: workLink, agreed_terms_at: new Date().toISOString(), terms_version: "2026-11-draft" },
     },
   });
   if (error) return { error: error.message };

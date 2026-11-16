@@ -186,6 +186,7 @@ export async function reportContent(_prev: ActionState, form: FormData): Promise
     project_id: String(form.get("project_id") ?? "") || null,
     feedback_id: String(form.get("feedback_id") ?? "") || null,
     reason,
+    category: ["not_original", "rights", "guidelines"].includes(String(form.get("category"))) ? String(form.get("category")) : "other",
   });
   if (error) return { error: "Couldn't send the report. Try again." };
   return { ok: "Thanks. A curator will look at it." };

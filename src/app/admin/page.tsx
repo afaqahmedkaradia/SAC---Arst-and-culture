@@ -3,11 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireViewer } from "@/lib/viewer";
-import { timeAgo } from "@/lib/constants";
+import { LINK_PLATFORMS, REPORT_CATEGORIES, mediaUrl, timeAgo, workTypeLabel } from "@/lib/constants";
 import { countOf, type PersonLite, type Profile } from "@/lib/types";
 import { Avatar } from "@/components/Avatar";
 import { Cover } from "@/components/Cover";
-import { resolveReport, setArtistStatus, setFeatured, setRemoved } from "./actions";
+import { resolveReport, setFeatured, setRemoved } from "./actions";
+import { ReviewPanel } from "./ReviewPanel";
 
 export const metadata: Metadata = { title: "Curators" };
 
@@ -22,6 +23,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   type Rep = {
     id: string;
     reason: string;
+    category: string;
     created_at: string;
     reporter: PersonLite | null;
     project: { id: string; title: string; status: string } | null;
@@ -42,7 +44,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     supabase.from("profiles").select("*").eq("role", "artist").eq("artist_status", "pending").order("created_at"),
     supabase
       .from("reports")
-      .select("id,reason,created_at,reporter:profiles!reports_reporter_id_fkey(id,username,display_name,avatar_path,banner_color),project:projects!reports_project_id_fkey(id,title,status),feedback(id,working,explore,project_id)")
+      .select("id,reason,category,created_at,reporter:profiles!reports_reporter_id_fkey(id,username,display_name,avatar_path,banner_color),project:projects!reports_project_id_fkey(id,title,status),feedback(id,working,explore,project_id)")
       .eq("status", "open")
       .order("created_at"),
     supabase
@@ -53,6 +55,21 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       .limit(50),
   ]);
   const pending = (pendingRes.data ?? []) as Profile[];
+
+  // Each applicant's work (drafts included) and earlier reviews, for the checklist.
+  type Draft = { id: string; owner_id: string; title: string; status: string; cover_path: string | null; work_type: string; original_credit: string | null };
+  type Review = { profile_id: string; decision: string; note: string | null; created_at: string; curator: { display_name: string } | null };
+  const ids = pending.map((p) => p.id);
+  const [draftsRes, reviewsRes] = ids.length
+    ? await Promise.all([
+        supabase.from("projects").select("id,owner_id,title,status,cover_path,work_type,original_credit").in("owner_id", ids).neq("status", "removed").order("created_at"),
+        supabase.from("artist_reviews").select("profile_id,decision,note,created_at,curator:profiles!artist_reviews_curator_id_fkey(display_name)").in("profile_id", ids).order("created_at", { ascending: false }),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const drafts = (draftsRes.data ?? []) as Draft[];
+  const reviews = (reviewsRes.data ?? []) as unknown as Review[];
+  const linkLabel = (id: string) => LINK_PLATFORMS.find((l) => l.id === id)?.label ?? "Link";
+  const categoryLabel = (id: string) => REPORT_CATEGORIES.find((c) => c.id === id)?.label ?? "Something else";
   const reports = (reportsRes.data ?? []) as unknown as Rep[];
   const projects = (projectsRes.data ?? []) as unknown as Proj[];
 
@@ -61,40 +78,78 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <div className="page pt-8 pb-20 flex flex-col gap-6">
         <div>
           <h1 className="h-display m-0 text-[34px]">Curators</h1>
-          <p className="m-0 mt-1.5 text-muted">Approve artists, feature work and handle reports.</p>
+          <p className="m-0 mt-1.5 text-muted">Review artists with the checklist, feature work and handle reports. <Link href="/guidelines">Community guidelines</Link></p>
         </div>
 
         <section aria-labelledby="pending-h" className="card p-5 flex flex-col gap-3">
           <h2 id="pending-h" className="m-0 text-lg font-semibold">Artists waiting for approval · {pending.length}</h2>
           {pending.length === 0 && <p className="m-0 text-sm text-muted">No one is waiting.</p>}
-          {pending.map((p) => (
-            <article key={p.id} className="border-t border-[#EEEDE9] pt-4 flex flex-wrap gap-4 justify-between items-start">
-              <div className="flex gap-3 items-start min-w-0">
-                <Avatar person={p} size={44} />
-                <div className="flex flex-col gap-1 min-w-0">
-                  <Link href={`/a/${p.username}`} className="font-semibold text-ink no-underline">{p.display_name}</Link>
-                  <span className="text-sm text-muted">{p.disciplines.join(" · ") || "No disciplines"} · joined {timeAgo(p.created_at)}</span>
-                  {p.work_link ? (
-                    <a href={external(p.work_link)} target="_blank" rel="noreferrer" className="text-sm break-all">{p.work_link}</a>
-                  ) : (
-                    <span className="text-sm text-muted">No link to their work</span>
-                  )}
+          {pending.map((p) => {
+            const work = drafts.filter((d) => d.owner_id === p.id);
+            const past = reviews.filter((r) => r.profile_id === p.id);
+            return (
+              <article key={p.id} className="border-t border-[#EEEDE9] pt-4 flex flex-col gap-4">
+                <div className="flex gap-3 items-start min-w-0">
+                  <Avatar person={p} size={44} />
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <Link href={`/a/${p.username}`} className="font-semibold text-ink no-underline">{p.display_name}</Link>
+                    <span className="text-sm text-muted">
+                      {p.disciplines.join(" · ") || "No art forms"} · {p.location || "No location"} · joined {timeAgo(p.created_at)}
+                    </span>
+                    <span className="text-sm text-body">{p.bio ? `${p.bio.slice(0, 220)}${p.bio.length > 220 ? "…" : ""}` : "No bio yet"}</span>
+                    <span className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                      {p.work_link && <a href={external(p.work_link)} target="_blank" rel="noreferrer">Link from sign-up</a>}
+                      {(p.links ?? []).map((l, i) => (
+                        <a key={i} href={external(l.url)} target="_blank" rel="noreferrer">{linkLabel(l.platform)}</a>
+                      ))}
+                      {!p.work_link && !(p.links ?? []).length && <span className="text-muted">No links</span>}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <form action={setArtistStatus}>
-                  <input type="hidden" name="profile_id" value={p.id} />
-                  <input type="hidden" name="status" value="approved" />
-                  <button className="btn btn-primary btn-sm">Approve</button>
-                </form>
-                <form action={setArtistStatus}>
-                  <input type="hidden" name="profile_id" value={p.id} />
-                  <input type="hidden" name="status" value="declined" />
-                  <button className="btn btn-outline btn-sm">Decline</button>
-                </form>
-              </div>
-            </article>
-          ))}
+
+                <div className="flex flex-col gap-2">
+                  <span className="label mb-0">Their work · {work.length}</span>
+                  {work.length === 0 && <p className="m-0 text-sm text-muted">No projects yet. You can request changes and ask them to add one.</p>}
+                  {work.map((d) => {
+                    const img = mediaUrl(d.cover_path);
+                    const label = workTypeLabel(d.work_type, d.original_credit) ?? "Original work";
+                    return (
+                      <div key={d.id} className="flex flex-wrap gap-3 items-center bg-white border border-line rounded-[10px] p-2.5">
+                        <span className="w-16 h-12 rounded-md overflow-hidden shrink-0"><Cover id={d.id} path={d.cover_path} /></span>
+                        <span className="flex flex-col min-w-0 flex-1">
+                          <Link href={`/p/${d.id}`} className="font-semibold text-ink no-underline">{d.title}</Link>
+                          <span className="text-[13px] text-muted">{label} · {d.status}</span>
+                        </span>
+                        {img ? (
+                          <span className="flex gap-3 text-[13px] font-semibold">
+                            <a href={`https://lens.google.com/uploadbyurl?url=${encodeURIComponent(img)}`} target="_blank" rel="noreferrer">Google Lens</a>
+                            <a href={`https://tineye.com/search?url=${encodeURIComponent(img)}`} target="_blank" rel="noreferrer">TinEye</a>
+                          </span>
+                        ) : (
+                          <span className="text-[13px] text-muted">No cover to search</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {past.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="label mb-0">Earlier reviews</span>
+                    {past.map((r, i) => (
+                      <p key={i} className="m-0 text-sm bg-white border border-line rounded-[10px] px-3 py-2">
+                        <b>{r.decision === "changes" ? "Changes requested" : r.decision === "declined" ? "Declined" : "Approved"}</b>
+                        {" "}by {r.curator?.display_name ?? "a curator"} · {timeAgo(r.created_at)}
+                        {r.note && <><br /><span className="text-body">{r.note}</span></>}
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                <ReviewPanel profileId={p.id} name={p.display_name} isSelf={p.id === viewer.id} />
+              </article>
+            );
+          })}
         </section>
 
         <section aria-labelledby="reports-h" className="card p-5 flex flex-col gap-3">
@@ -105,6 +160,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               <div className="text-sm text-muted">
                 Reported by {r.reporter?.display_name ?? "a member"} · {timeAgo(r.created_at)}
               </div>
+              <span className="chip bg-gold-tint text-[#7A4E00] text-xs self-start">{categoryLabel(r.category)}</span>
               <p className="m-0 text-[15px]">“{r.reason}”</p>
               {r.project && (
                 <p className="m-0 text-sm">Project: <Link href={`/p/${r.project.id}`}>{r.project.title}</Link> ({r.project.status})</p>
