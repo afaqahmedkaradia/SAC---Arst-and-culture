@@ -41,7 +41,7 @@ export default async function NewsletterEditPage({ params }: { params: Promise<{
       <SetupNotice missing={setup.missing} />
       <div className="flex flex-wrap gap-6 items-start">
         <div className="flex-[1_1_520px] min-w-0">
-          <Composer nl={nl} audience={(subs ?? []).map((s) => s.topics as string[])} ready={setup.ready} />
+          <Composer nl={nl} audience={(subs ?? []).map((s) => s.topics as string[])} ready={setup.ready} userId={viewer.id} />
         </div>
         <section aria-label="Preview" className="flex-[1_1_480px] min-w-0 flex flex-col gap-2 lg:sticky lg:top-24">
           <span className="label mb-0">Preview{nl.status === "draft" ? " (last saved)" : ""}</span>

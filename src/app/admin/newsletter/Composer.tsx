@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useRef, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { mediaUrl } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { NEWSLETTER_TOPICS } from "@/lib/constants";
 import { retryFailed, saveNewsletter, sendNextBatch, startSending, type ComposeState } from "./actions";
@@ -19,10 +21,36 @@ type NL = {
   failed_count: number;
 };
 
-export function Composer({ nl, audience, ready }: { nl: NL; audience: string[][]; ready: boolean }) {
+export function Composer({ nl, audience, ready, userId }: { nl: NL; audience: string[][]; ready: boolean; userId: string }) {
   const [state, action, pending] = useActionState<ComposeState, FormData>(saveNewsletter, undefined);
   const [topics, setTopics] = useState<string[]>(nl.topics);
   const draft = nl.status === "draft";
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
+
+  // Pictures go to Supabase Storage like project images; the email links to the public copy.
+  async function addPicture(file: File) {
+    if (!/^image\/(jpeg|png|gif|webp)$/.test(file.type)) return setUploading("Use a JPG, PNG, GIF or WebP picture.");
+    if (file.size > 5 * 1024 * 1024) return setUploading("Pictures in emails should be under 5 MB. Try a smaller one.");
+    setUploading("Uploading…");
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const path = `${userId}/newsletter-${crypto.randomUUID()}.${ext}`;
+    const { error } = await createClient().storage.from("media").upload(path, file, { contentType: file.type, upsert: false });
+    if (error) return setUploading(`Upload failed: ${error.message}`);
+    const el = bodyRef.current;
+    if (el) {
+      const alt = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+      const line = `![${alt}](${mediaUrl(path)})`;
+      const at = el.selectionStart ?? el.value.length;
+      const before = el.value.slice(0, at).replace(/\s*$/, "");
+      const after = el.value.slice(at).replace(/^\s*/, "");
+      el.value = `${before}${before ? "\n\n" : ""}${line}${after ? "\n\n" + after : ""}`;
+      el.focus();
+    }
+    setUploading("Picture added. Edit the words in the square brackets to describe it, then save.");
+  }
+
   const reach = useMemo(() => audience.filter((t) => t.some((x) => topics.includes(x))).length, [audience, topics]);
 
   return (
@@ -64,8 +92,13 @@ export function Composer({ nl, audience, ready }: { nl: NL; audience: string[][]
           </div>
           <div>
             <label htmlFor="body" className="label">Message</label>
-            <textarea id="body" name="body" defaultValue={nl.body} rows={14} maxLength={20000} className="input font-[inherit] leading-relaxed" placeholder={"Write your message here.\n\n## A heading\n\n- A list item\n- Another item\n\n**Bold words** and [a link](https://example.com)"} />
-            <p className="hint mt-1.5 mb-0">Leave a blank line between paragraphs. <code>## </code> starts a heading, <code>- </code> a list item, <code>**bold**</code>, and <code>[link text](https://…)</code> a link.</p>
+            <textarea ref={bodyRef} id="body" name="body" defaultValue={nl.body} rows={14} maxLength={20000} className="input font-[inherit] leading-relaxed" placeholder={"Write your message here.\n\n## A heading\n\n- A list item\n- Another item\n\n**Bold words** and [a link](https://example.com)"} />
+            <div className="flex flex-wrap items-center gap-3 mt-2">
+              <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="sr-only" tabIndex={-1} onChange={(e) => { const f = e.target.files?.[0]; if (f) addPicture(f); e.target.value = ""; }} />
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => fileRef.current?.click()}>+ Add a picture</button>
+              {uploading && <span role="status" className="text-sm text-body">{uploading}</span>}
+            </div>
+            <p className="hint mt-1.5 mb-0">Leave a blank line between paragraphs. <code>## </code> starts a heading, <code>- </code> a list item, <code>**bold**</code>, and <code>[link text](https://…)</code> a link. For a picture, put <code>![what it shows](https://…/photo.jpg)</code> on its own line; two picture lines together sit side by side.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <div className="flex-[1_1_200px]">

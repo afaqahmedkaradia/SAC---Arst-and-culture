@@ -40,6 +40,7 @@ Then run the later files the same way, in order, each once:
 - [`0002_signature_colours.sql`](supabase/migrations/0002_signature_colours.sql)
 - [`0003_policies.sql`](supabase/migrations/0003_policies.sql): work types and the upload declaration, profile links and CV, report reasons, and curator reviews
 - [`0004_newsletter.sql`](supabase/migrations/0004_newsletter.sql): newsletter subscribers, newsletters and deliveries
+- [`0005_newsletter_import.sql`](supabase/migrations/0005_newsletter_import.sql): lets curators add and invite subscribers
 
 ### 2. Set up sign-in emails (Supabase)
 

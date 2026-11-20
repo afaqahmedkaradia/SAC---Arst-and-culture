@@ -30,7 +30,9 @@ export const unsubscribeUrl = (token: string) => `${SITE_URL}/api/newsletter/uns
 
 // ---------------------------------------------------------------------------
 // Rendering. The body is plain text with a few marks: a blank line starts a
-// paragraph, "## " a heading, "- " a list item, **bold**, and [text](https://…).
+// paragraph, "## " a heading, "- " a list item, **bold**, [text](https://…),
+// and a picture on its own line: ![description](https://…). Two pictures in
+// one paragraph sit side by side.
 // ---------------------------------------------------------------------------
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const safeUrl = (u: string) => (/^https?:\/\/[^\s"<>]+$/i.test(u) ? u : null);
@@ -47,6 +49,14 @@ function inlineText(s: string) {
   return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1 ($2)");
 }
 
+const IMG_LINE = /^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/;
+
+function imageTag(alt: string, url: string, width: number) {
+  const src = safeUrl(url);
+  if (!src) return "";
+  return `<img src="${esc(src)}" alt="${esc(alt)}" width="${width}" style="display:block;width:100%;max-width:${width}px;height:auto;border:0;border-radius:12px;">`;
+}
+
 function bodyHtml(body: string) {
   return body
     .replace(/\r/g, "")
@@ -58,6 +68,16 @@ function bodyHtml(body: string) {
         return `<h2 style="margin:28px 0 8px;font-size:22px;line-height:1.25;color:#141416;">${inline(block.slice(3))}</h2>`;
       }
       const lines = block.split("\n");
+      const imgs = lines.map((l) => l.trim().match(IMG_LINE));
+      if (imgs.every(Boolean)) {
+        const pics = imgs as RegExpMatchArray[];
+        if (pics.length === 2) {
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;"><tr>${pics
+            .map((m, i) => `<td width="50%" valign="top" style="padding:${i ? "0 0 0 6px" : "0 6px 0 0"};">${imageTag(m[1], m[2], 266)}</td>`)
+            .join("")}</tr></table>`;
+        }
+        return pics.map((m) => `<div style="margin:4px 0 20px;">${imageTag(m[1], m[2], 544)}</div>`).join("");
+      }
       if (lines.every((l) => /^- /.test(l))) {
         return `<ul style="margin:0 0 16px;padding-left:22px;">${lines.map((l) => `<li style="margin:0 0 6px;">${inline(l.slice(2))}</li>`).join("")}</ul>`;
       }
@@ -76,7 +96,7 @@ export type NewsletterContent = {
 };
 
 export function renderNewsletter(n: NewsletterContent, token: string | null) {
-  const topicNames = NEWSLETTER_TOPICS.filter((t) => n.topics.includes(t.id)).map((t) => t.label.toLowerCase());
+  const topicNames = NEWSLETTER_TOPICS.filter((t) => n.topics.includes(t.id)).map((t) => t.label.toLowerCase().replace(/\bsac\b/g, "SAC"));
   const address = process.env.NEWSLETTER_POSTAL_ADDRESS || "[mailing address]";
   const button = n.button_label && n.button_url && safeUrl(n.button_url) ? { label: n.button_label, url: n.button_url } : null;
   const manage = token ? manageUrl(token) : `${SITE_URL}/newsletter`;
@@ -109,7 +129,11 @@ ${esc(OPERATOR)}<br>${esc(address)}${CONTACT_EMAIL ? `<br><a href="mailto:${esc(
   const text = [
     n.subject,
     "",
-    ...n.body.replace(/\r/g, "").split("\n").map((l) => inlineText(l.replace(/^## /, "").replace(/^- /, "• "))),
+    ...n.body
+      .replace(/\r/g, "")
+      .split("\n")
+      .filter((l) => !IMG_LINE.test(l.trim()))
+      .map((l) => inlineText(l.replace(/^## /, "").replace(/^- /, "• "))),
     ...(button ? ["", `${button.label}: ${button.url}`] : []),
     "",
     "—",

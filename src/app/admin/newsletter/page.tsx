@@ -32,9 +32,12 @@ export default async function NewslettersPage() {
           <h1 className="m-0 mt-2 font-display font-black text-[clamp(36px,4vw,52px)] tracking-[-0.04em] leading-none">Newsletters</h1>
           <p className="m-0 mt-2 text-muted">Tell subscribers about art events, sales, residencies and grants.</p>
         </div>
-        <form action={createNewsletter}>
-          <button className="btn btn-primary">+ New newsletter</button>
-        </form>
+        <div className="flex flex-wrap gap-2.5">
+          <Link href="/admin/newsletter/subscribers" className="btn btn-outline">Subscribers</Link>
+          <form action={createNewsletter}>
+            <button className="btn btn-primary">+ New newsletter</button>
+          </form>
+        </div>
       </div>
 
       <SetupNotice missing={setup.missing} />
@@ -52,7 +55,7 @@ export default async function NewslettersPage() {
         ))}
       </section>
       <p className="m-0 -mt-3 text-sm text-muted">
-        People subscribe on the <Link href="/newsletter">newsletter page</Link> and the homepage, when they join, or in their settings. Only people who opted in are counted.
+        People subscribe on the <Link href="/newsletter">newsletter page</Link> and the homepage, when they join, or in their settings, and curators can <Link href="/admin/newsletter/subscribers">add or invite people</Link>. Only people who opted in are counted.
       </p>
 
       <section className="card p-0 overflow-hidden">
