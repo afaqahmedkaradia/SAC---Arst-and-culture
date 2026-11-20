@@ -122,6 +122,11 @@ export function JoinForm() {
         </span>
       </label>
 
+      <label className="flex gap-2.5 items-start text-sm leading-normal text-body">
+        <input type="checkbox" name="newsletter" className="w-5 h-5 m-0 accent-accent shrink-0" />
+        <span>Also email me about art events, art for sale, and residencies and grants. Optional, and I can unsubscribe at any time.</span>
+      </label>
+
       {state?.error && (
         <p role="alert" className="m-0 text-sm font-medium text-danger bg-danger-tint rounded-lg px-3.5 py-2.5">
           {state.error}

@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { subscribeFromSignup } from "@/lib/newsletter-signup";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { BASE_PATH, SITE_URL } from "@/lib/env";
@@ -45,13 +46,16 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
     password,
     options: {
       emailRedirectTo: `${await appUrl()}/auth/confirm?next=/dashboard`,
-      data: { display_name: displayName, role, disciplines, work_link: workLink, agreed_terms_at: new Date().toISOString(), terms_version: "2026-11-draft" },
+      data: { display_name: displayName, role, disciplines, work_link: workLink, agreed_terms_at: new Date().toISOString(), terms_version: "2026-11-draft", newsletter_opt_in: form.get("newsletter") === "on" },
     },
   });
   if (error) return { error: error.message };
 
   // If email confirmation is turned off in Supabase, the person is signed in already.
-  if (data.session) redirect("/dashboard?welcome=1");
+  if (data.session) {
+    await subscribeFromSignup(data.user);
+    redirect("/dashboard?welcome=1");
+  }
   return { sent: true, email };
 }
 

@@ -218,3 +218,14 @@ export const CURATOR_CHECKS = [
   { id: "guidelines", label: "Within the guidelines", hint: "Including respectful treatment of faith and sacred material" },
   { id: "consent", label: "Rights and consent", hint: "People shown, especially children, appear with consent; music or footage is theirs or credited" },
 ] as const;
+
+// Newsletter topics. Subscribers pick any; a newsletter goes to everyone
+// subscribed to at least one of its topics.
+export const NEWSLETTER_TOPICS = [
+  { id: "events", label: "Art events and showcases", hint: "Exhibitions, performances and community showcases" },
+  { id: "sales", label: "Art for sale and auctions", hint: "New work for sale, art sales and online auctions" },
+  { id: "opportunities", label: "Residencies, grants and calls", hint: "Funding, residencies and calls for artists" },
+  { id: "news", label: "SAC news and featured artists", hint: "Curator’s picks and what’s new on SAC" },
+] as const;
+export type NewsletterTopic = (typeof NEWSLETTER_TOPICS)[number]["id"];
+export const NEWSLETTER_TOPIC_IDS = NEWSLETTER_TOPICS.map((t) => t.id) as string[];

@@ -7,6 +7,7 @@ import { ART_FORMS, ArtFormIcon, type ArtKind } from "@/components/ArtForm";
 import { ProjectGrid } from "@/components/ProjectCard";
 import { StarOutline } from "@/components/Star";
 import { HeroArch } from "@/components/landing/LandingClient";
+import { SubscribeForm } from "@/components/NewsletterForms";
 
 type Artist = PersonLite & { headline: string | null; disciplines: string[]; location: string | null };
 
@@ -237,6 +238,24 @@ export default async function HomePage() {
               <span className="text-base leading-normal text-body max-w-[320px]">Featured on SAC, in community publications, at showcases and across social channels.</span>
             </li>
           </ol>
+        </div>
+      </section>
+
+      {/* Newsletter */}
+      <section id="newsletter" className="page pt-20 scroll-mt-20">
+        <div className="flex flex-wrap gap-10 items-start border-[1.5px] border-line rounded-[32px] bg-white px-7 sm:px-12 py-12">
+          <div className="flex-[1_1_320px] flex flex-col gap-4">
+            <span className="eyebrow">Newsletter</span>
+            <h2 className="m-0 font-black text-[clamp(34px,3.6vw,52px)] leading-none tracking-[-0.04em]">
+              Never miss an <span className="serif-accent text-accent">opening.</span>
+            </h2>
+            <p className="m-0 text-[17px] leading-relaxed text-body max-w-[420px]">
+              Art events and showcases, work for sale, and residencies and grants, chosen by SAC&apos;s curators. Pick the topics you care about.
+            </p>
+          </div>
+          <div className="flex-[1.4_1_420px] min-w-0">
+            <SubscribeForm />
+          </div>
         </div>
       </section>
 

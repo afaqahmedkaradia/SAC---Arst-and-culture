@@ -39,6 +39,7 @@ Then run the later files the same way, in order, each once:
 
 - [`0002_signature_colours.sql`](supabase/migrations/0002_signature_colours.sql)
 - [`0003_policies.sql`](supabase/migrations/0003_policies.sql): work types and the upload declaration, profile links and CV, report reasons, and curator reviews
+- [`0004_newsletter.sql`](supabase/migrations/0004_newsletter.sql): newsletter subscribers, newsletters and deliveries
 
 ### 2. Set up sign-in emails (Supabase)
 
@@ -90,6 +91,19 @@ To email artists about new feedback, inquiries and approvals, add these as **Sec
 | `EMAIL_FROM` | e.g. `SAC <hello@yourdomain.com>` (a domain verified in Resend) |
 
 Without them, everything still works; notifications just show up in the dashboard instead.
+
+### 6. Newsletters
+
+Curators write and send newsletters at `/admin/newsletter`. People subscribe on the homepage, at `/newsletter`, when they join, or in their settings, and choose topics: art events, art for sale, residencies and grants, and SAC news.
+
+Sending needs the three secrets from step 5, plus:
+
+| Name | Value | Type |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | your app's address (already set in step 3) | Variable |
+| `NEWSLETTER_POSTAL_ADDRESS` | the Council's mailing address, shown in every newsletter as Canada's anti-spam law (CASL) requires | Variable |
+
+In Resend, verify the domain used in `EMAIL_FROM`. Resend's free plan allows 100 emails a day and 3,000 a month; a larger list needs a paid plan.
 
 ---
 

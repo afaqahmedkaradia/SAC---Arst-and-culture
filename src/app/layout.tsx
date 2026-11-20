@@ -49,6 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <span className="eyebrow before:hidden text-xs">Take part</span>
                 <Link href="/join" className="text-ink no-underline py-1">Join SAC</Link>
                 <Link href="/login" className="text-ink no-underline py-1">Log in</Link>
+                <Link href="/newsletter" className="text-ink no-underline py-1">Newsletter</Link>
               </div>
               <div className="flex flex-col gap-2">
                 <span className="eyebrow before:hidden text-xs">Policies</span>

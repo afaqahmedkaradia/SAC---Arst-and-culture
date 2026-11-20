@@ -79,6 +79,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         <div>
           <h1 className="h-display m-0 text-[34px]">Curators</h1>
           <p className="m-0 mt-1.5 text-muted">Review artists with the checklist, feature work and handle reports. <Link href="/guidelines">Community guidelines</Link></p>
+          <Link href="/admin/newsletter" className="btn btn-dark btn-sm mt-3">Newsletters</Link>
         </div>
 
         <section aria-labelledby="pending-h" className="card p-5 flex flex-col gap-3">
