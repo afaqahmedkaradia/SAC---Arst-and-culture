@@ -12,6 +12,7 @@ export default function PrivacyPage() {
       <H2>What we collect</H2>
       <ul className="m-0 pl-6 list-disc flex flex-col gap-1.5">
         <li><b className="text-ink">Account details:</b> your name, email address and password (stored encrypted).</li>
+        <li><b className="text-ink">Community connection (artists):</b> the Jamatkhana you attend, your country of birth and the country you live in, and, if you choose, details of an Ismaili family member. This is private: only SAC curators see it, and only to confirm artist accounts. It never appears on your profile.</li>
         <li><b className="text-ink">What you choose to share:</b> your profile, links, CV, photo and projects. These are public.</li>
         <li><b className="text-ink">Activity:</b> who you follow, what you appreciate and save, responses you write, and messages you send to artists.</li>
       </ul>

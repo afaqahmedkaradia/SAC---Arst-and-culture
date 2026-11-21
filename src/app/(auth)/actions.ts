@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { BASE_PATH, SITE_URL } from "@/lib/env";
 import { DISCIPLINES } from "@/lib/constants";
+import { readCommunity } from "@/lib/community";
 
 export type FormState = { error?: string; sent?: boolean; email?: string } | undefined;
 
@@ -39,6 +40,8 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
   if (password.length < 10) return { error: "Your password needs at least 10 characters." };
   if (form.get("agree") !== "on") return { error: "Please agree to the terms of use and community guidelines." };
   if (role === "artist" && disciplines.length === 0) return { error: "Pick at least one discipline." };
+  const community = role === "artist" ? readCommunity(form) : null;
+  if (community?.error) return { error: community.error };
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -46,7 +49,7 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
     password,
     options: {
       emailRedirectTo: `${await appUrl()}/auth/confirm?next=/dashboard`,
-      data: { display_name: displayName, role, disciplines, work_link: workLink, agreed_terms_at: new Date().toISOString(), terms_version: "2026-11-draft", newsletter_opt_in: form.get("newsletter") === "on" },
+      data: { display_name: displayName, role, disciplines, work_link: workLink, agreed_terms_at: new Date().toISOString(), terms_version: "2026-11-draft", newsletter_opt_in: form.get("newsletter") === "on", ...(community?.data ? { community: community.data } : {}) },
     },
   });
   if (error) return { error: error.message };

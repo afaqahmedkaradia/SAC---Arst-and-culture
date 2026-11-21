@@ -4,6 +4,9 @@ import { requireViewer } from "@/lib/viewer";
 import { BackIcon } from "@/components/Icons";
 import { SettingsForm } from "./SettingsForm";
 import { ProfileImport } from "./ProfileImport";
+import { CommunityCard } from "./CommunityCard";
+import { createClient } from "@/lib/supabase/server";
+import type { CommunityDetails } from "@/lib/community";
 import { PreferencesForm } from "@/components/NewsletterForms";
 import { cleanEmail, newsletterSetup, serviceClient } from "@/lib/newsletter";
 
@@ -15,6 +18,10 @@ export default async function SettingsPage() {
   const sub = db && viewer.email
     ? (await db.from("newsletter_subscribers").select("topics,status").eq("email", cleanEmail(viewer.email)).maybeSingle()).data
     : null;
+  const isArtist = viewer.profile.role === "artist";
+  const community = isArtist
+    ? ((await (await createClient()).from("community_details").select("*").eq("profile_id", viewer.id).maybeSingle()).data as CommunityDetails | null)
+    : null;
   return (
     <main className="flex-1 bg-soft">
       <div className="page max-w-[860px] pt-8 pb-20 flex flex-col gap-6">
@@ -24,6 +31,7 @@ export default async function SettingsPage() {
         <h1 className="h-display m-0 text-[34px]">Profile settings</h1>
         <ProfileImport profile={viewer.profile} />
         <SettingsForm profile={viewer.profile} />
+        {isArtist && <CommunityCard initial={community} />}
         {db && (
           <section className="card p-5 sm:p-6 flex flex-col gap-4">
             <div>

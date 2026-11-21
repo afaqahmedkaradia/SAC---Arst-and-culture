@@ -9,6 +9,7 @@ import { Avatar } from "@/components/Avatar";
 import { Cover } from "@/components/Cover";
 import { resolveReport, setFeatured, setRemoved } from "./actions";
 import { ReviewPanel } from "./ReviewPanel";
+import type { CommunityDetails } from "@/lib/community";
 
 export const metadata: Metadata = { title: "Curators" };
 
@@ -60,12 +61,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   type Draft = { id: string; owner_id: string; title: string; status: string; cover_path: string | null; work_type: string; original_credit: string | null };
   type Review = { profile_id: string; decision: string; note: string | null; created_at: string; curator: { display_name: string } | null };
   const ids = pending.map((p) => p.id);
-  const [draftsRes, reviewsRes] = ids.length
+  const [draftsRes, reviewsRes, communityRes] = ids.length
     ? await Promise.all([
         supabase.from("projects").select("id,owner_id,title,status,cover_path,work_type,original_credit").in("owner_id", ids).neq("status", "removed").order("created_at"),
         supabase.from("artist_reviews").select("profile_id,decision,note,created_at,curator:profiles!artist_reviews_curator_id_fkey(display_name)").in("profile_id", ids).order("created_at", { ascending: false }),
+        supabase.from("community_details").select("*").in("profile_id", ids),
       ])
-    : [{ data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: [] }];
+  const community = (communityRes.data ?? []) as (CommunityDetails & { profile_id: string })[];
   const drafts = (draftsRes.data ?? []) as Draft[];
   const reviews = (reviewsRes.data ?? []) as unknown as Review[];
   const linkLabel = (id: string) => LINK_PLATFORMS.find((l) => l.id === id)?.label ?? "Link";
@@ -107,6 +110,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                     </span>
                   </div>
                 </div>
+
+                <CommunityBlock details={community.find((c) => c.profile_id === p.id) ?? null} />
 
                 <div className="flex flex-col gap-2">
                   <span className="label mb-0">Their work · {work.length}</span>
@@ -243,5 +248,38 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </section>
       </div>
     </main>
+  );
+}
+
+// Private answers from sign-up, for the "Community connection" check.
+function CommunityBlock({ details: d }: { details: CommunityDetails | null }) {
+  if (!d) {
+    return (
+      <p className="m-0 text-sm bg-gold-tint rounded-[10px] px-3 py-2.5">
+        <b>Community connection:</b> not given yet. They can add it in Profile settings; you can request changes to ask for it.
+      </p>
+    );
+  }
+  const rows: [string, string | null][] = [
+    ["Jamatkhana", d.jamatkhana],
+    ["Country of birth", d.country_of_birth],
+    ["Lives in", d.country_of_residence],
+  ];
+  if (d.multifaith) {
+    rows.push(["Multi-faith family", [d.family_relationship, d.family_member_name].filter(Boolean).join(": ") || "Yes"]);
+    rows.push(["Family's Jamatkhana", d.family_jamatkhana]);
+  }
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="label mb-0">Community connection <span className="font-normal text-muted">(private)</span></span>
+      <dl className="m-0 grid gap-x-4 gap-y-1 text-sm bg-white border border-line rounded-[10px] px-3 py-2.5" style={{ gridTemplateColumns: "max-content 1fr" }}>
+        {rows.map(([k, v]) => (
+          <div key={k} className="contents">
+            <dt className="text-muted">{k}</dt>
+            <dd className="m-0 text-ink">{v || "Not given"}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }

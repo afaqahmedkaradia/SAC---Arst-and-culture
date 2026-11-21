@@ -6,6 +6,7 @@ import { signUp, type FormState } from "../actions";
 import { DISCIPLINES } from "@/lib/constants";
 import { SubmitButton } from "@/components/SubmitButton";
 import { CheckIcon } from "@/components/Icons";
+import { CommunityFields } from "@/components/CommunityFields";
 
 export function JoinForm() {
   const [state, action] = useActionState<FormState, FormData>(signUp, undefined);
@@ -112,6 +113,14 @@ export function JoinForm() {
             </label>
             <input id="work_link" name="work_link" type="url" placeholder="Website, Instagram, YouTube…" className="input" />
           </div>
+          <fieldset className="border-0 p-0 m-0 flex flex-col gap-3">
+            <legend className="font-semibold text-[15px] mb-1">Your community connection</legend>
+            <p className="m-0 text-sm text-muted leading-normal">
+              SAC celebrates artists from the Ismaili community and their families. These answers help a curator confirm your account.
+              They are private: only SAC curators see them, and they never appear on your profile.
+            </p>
+            <CommunityFields idPrefix="join" />
+          </fieldset>
         </>
       )}
 

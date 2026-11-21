@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireViewer } from "@/lib/viewer";
+import { readCommunity } from "@/lib/community";
 import { AVAILABLE_FOR, BANNER_COLORS, CV_KINDS, DISCIPLINES, LINK_PLATFORMS, type CvEntry, type ProfileLink } from "@/lib/constants";
 
 export type ProfileState = { error?: string; ok?: string } | undefined;
@@ -155,4 +156,18 @@ export async function importProfile(_prev: ProfileState, form: FormData): Promis
   if (error) return { error: "Couldn't add these to your profile. Try again." };
   revalidatePath("/", "layout");
   return { ok: "Added to your profile." };
+}
+
+// Jamatkhana, countries and multi-faith family details. Private to the artist and curators.
+export async function saveCommunity(_prev: ProfileState, form: FormData): Promise<ProfileState> {
+  const viewer = await requireViewer("/dashboard/settings");
+  const { data, error } = readCommunity(form);
+  if (!data) return { error };
+  const supabase = await createClient();
+  const { error: dbError } = await supabase
+    .from("community_details")
+    .upsert({ profile_id: viewer.id, ...data, updated_at: new Date().toISOString() });
+  if (dbError) return { error: "Couldn't save these details. Try again." };
+  revalidatePath("/admin");
+  return { ok: "Saved. Only SAC curators can see these details." };
 }
