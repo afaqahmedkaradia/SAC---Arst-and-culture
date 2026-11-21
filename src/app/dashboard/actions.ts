@@ -108,3 +108,51 @@ export async function updateProfile(_prev: ProfileState, form: FormData): Promis
   revalidatePath("/", "layout");
   return { ok: "Profile saved." };
 }
+
+// Adds the details an artist chose from their CV or LinkedIn file.
+// Nothing already on the profile is removed: lists are merged, text fields only change when chosen.
+export async function importProfile(_prev: ProfileState, form: FormData): Promise<ProfileState> {
+  const viewer = await requireViewer("/dashboard/settings");
+  const p = viewer.profile;
+  const field = (name: string, max: number) => (form.has(name) ? String(form.get(name) ?? "").trim().slice(0, max) : null);
+  const headline = field("headline", 120);
+  const bio = field("bio", 2000);
+  const location = field("location", 80);
+
+  const links = [...(p.links ?? [])];
+  const linkKey = (u: string) => u.toLowerCase().replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+  for (const l of parseLinks(form.get("links"))) {
+    if (links.length >= 8) break;
+    if (!links.some((x) => linkKey(x.url) === linkKey(l.url))) links.push(l);
+  }
+
+  const cv = [...(p.cv ?? [])];
+  const cvKey = (e: CvEntry) => `${e.year}|${e.title.trim().toLowerCase()}`;
+  if (p.role === "artist") {
+    for (const e of parseCv(form.get("cv"))) {
+      if (cv.length >= 30) break;
+      if (!cv.some((x) => cvKey(x) === cvKey(e))) cv.push(e);
+    }
+    cv.sort((a, b) => (b.year || "").localeCompare(a.year || ""));
+  }
+
+  const union = (have: string[] | null | undefined, name: string, allowed: readonly string[]) =>
+    Array.from(new Set([...(have ?? []), ...form.getAll(name).map(String).filter((d) => allowed.includes(d))]));
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      ...(headline ? { headline } : {}),
+      ...(bio ? { bio } : {}),
+      ...(location ? { location } : {}),
+      links,
+      ...(p.role === "artist" ? { cv } : {}),
+      disciplines: union(p.disciplines, "disciplines", DISCIPLINES),
+      available_for: union(p.available_for, "available_for", AVAILABLE_FOR),
+    })
+    .eq("id", viewer.id);
+  if (error) return { error: "Couldn't add these to your profile. Try again." };
+  revalidatePath("/", "layout");
+  return { ok: "Added to your profile." };
+}

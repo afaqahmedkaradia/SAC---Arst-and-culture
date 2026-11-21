@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireViewer } from "@/lib/viewer";
 import { BackIcon } from "@/components/Icons";
 import { SettingsForm } from "./SettingsForm";
+import { ProfileImport } from "./ProfileImport";
 import { PreferencesForm } from "@/components/NewsletterForms";
 import { cleanEmail, newsletterSetup, serviceClient } from "@/lib/newsletter";
 
@@ -21,6 +22,7 @@ export default async function SettingsPage() {
           <BackIcon /> Dashboard
         </Link>
         <h1 className="h-display m-0 text-[34px]">Profile settings</h1>
+        <ProfileImport profile={viewer.profile} />
         <SettingsForm profile={viewer.profile} />
         {db && (
           <section className="card p-5 sm:p-6 flex flex-col gap-4">
